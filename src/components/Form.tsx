@@ -1,6 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import LabelledInput from "./LabelledInput";
-const formFields = [
+import FormsList from "./FormsList";
+interface formData {
+  title: string;
+  formFields: form[];
+}
+
+interface form {
+  title: string;
+  type: string;
+  value: string;
+}
+
+const initialFormFields: form[] = [
   {
     title: "First Name",
     type: "text",
@@ -27,39 +39,156 @@ const formFields = [
     value: "",
   },
 ];
+
+const getLocalForms: () => formData[] = () => {
+  const savedFormsJson = localStorage.getItem("savedForms");
+  return savedFormsJson ? JSON.parse(savedFormsJson) : [];
+};
+
+const initialState: () => formData = () => {
+  const localForms = getLocalForms();
+  if (localForms.length > 0) {
+    return localForms[0];
+  }
+  const newForm = {
+    title: "Untitled Form",
+    formFields: initialFormFields,
+  };
+  saveLocalForms([newForm]);
+  return newForm;
+};
+
+const saveLocalForms = (localForm: formData[]) => {
+  localStorage.setItem("savedForms", JSON.stringify(localForm));
+};
+
+const saveFormData = (currentState: formData) => {
+  let localForms = getLocalForms();
+  const updatedForms = localForms.map((form) =>
+    form.title === currentState.title ? currentState : form
+  );
+  saveLocalForms(updatedForms);
+};
+
 export default function Form(props: { closeFormCB: () => void }) {
-  const [state, setState] = useState(formFields);
+  const [state, setState] = useState(() => initialState());
   const [newField, setNewField] = useState("");
+  const [fieldList, setFieldList] = useState(getLocalForms());
+  const titleRef = useRef<HTMLInputElement>(null);
+
+  const submitFormData = (currentState: formData) => {
+    let localForms = getLocalForms();
+    let updatedForms: formData[] = [];
+    if (currentState.title in localForms) {
+      updatedForms = localForms.map((form) =>
+        form.title === currentState.title ? currentState : form
+      );
+    } else {
+      updatedForms = [...localForms, currentState];
+    }
+
+    // console.log(JSON.stringify(updatedForms));
+    saveLocalForms(updatedForms);
+    setFieldList(updatedForms);
+  };
+
+  const deleteFieldList = (title: string) => {
+    let localForms = getLocalForms();
+    const updatedForms = localForms.filter((form) => form.title !== title);
+    saveLocalForms(updatedForms);
+    setFieldList(updatedForms);
+  };
+
+  const editField = (title: string) => {
+    const updatedForm = [...fieldList].filter((form) => form.title === title);
+    setState(updatedForm[0]);
+  };
+
+  useEffect(() => {
+    console.log("Component Mounted");
+    const oldTitle = document.title;
+    document.title = "FormEditor";
+    titleRef.current?.focus();
+    return () => {
+      document.title = oldTitle;
+    };
+  }, []);
+
+  useEffect(() => {
+    let timeout = setTimeout(() => {
+      saveFormData(state);
+      console.log("state saved to local storage");
+    }, 1000);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [state]);
   const addField = () => {
-    setState([
+    setState({
       ...state,
-      {
-        title: newField,
-        type: "text",
-        value: "",
-      },
-    ]);
+      formFields: [
+        ...state.formFields,
+        {
+          title: newField,
+          type: "text",
+          value: "",
+        },
+      ],
+    });
     setNewField("");
   };
 
   const removeField = (id: number) => {
-    setState(state.filter((_, idd) => idd !== id));
+    setState({
+      ...state,
+      formFields: state.formFields.filter((_, idd) => idd !== id),
+    });
   };
 
   const setFieldValue = (updateValue: string, id: number) => {
-    const updatedState = [...state];
+    const updatedState = [...state.formFields];
     updatedState[id].value = updateValue;
-    setState(updatedState);
+    setState({
+      ...state,
+      formFields: updatedState,
+    });
   };
 
   const clearForm = () => {
-    setState([...state].map((field) => ({ ...field, value: "" })));
+    setState({
+      ...state,
+      formFields: [...state.formFields].map((field) => ({
+        ...field,
+        value: "",
+      })),
+    });
   };
 
   return (
     <div className="divide-y-2 divide-dotted">
+      <div className="w-full mb-5">
+        <p className="font-semibold text-lg text-center">Available Forms</p>
+        {fieldList.map((ele, indx) => (
+          <FormsList
+            key={indx}
+            title={ele.title}
+            deleteCB={deleteFieldList}
+            editCB={editField}
+          />
+        ))}
+      </div>
       <div>
-        {state.map((field, id) => (
+        <input
+          value={state.title}
+          onChange={(e) => {
+            setState({ ...state, title: e.target.value });
+          }}
+          ref={titleRef}
+          className="border-2 flex-1 w-full border-gray-200 focus:border-sky-500 focus:outline-none rounded-lg p-2 m-2"
+          type="text"
+        />
+        {state.formFields.map((field, id) => (
           <LabelledInput
             key={id}
             id={id}
@@ -88,7 +217,12 @@ export default function Form(props: { closeFormCB: () => void }) {
         </button>
       </div>
       <div className="flex justify-center items-center">
-        <button className="p-2 m-2 w-20 bg-blue-500 rounded-xl hover:bg-blue-600 text-white font-bold text-base">
+        <button
+          onClick={(_) => {
+            submitFormData(state);
+          }}
+          className="p-2 m-2 w-20 bg-blue-500 rounded-xl hover:bg-blue-600 text-white font-bold text-base"
+        >
           Submit
         </button>
         <button
