@@ -28,7 +28,7 @@ export default function LabelledInput(props: {
         </button>
         <button
           onClick={() => props.setFieldValueCB("", props.id)}
-          className="p-2 mt-2 mb-2  bg-red-300 rounded-xl hover:bg-red-400 text-white font-bold text-base"
+          className="p-2 mt-2 mb-2  bg-red-500 rounded-xl hover:bg-red-600 text-white font-bold text-base"
         >
           Clear
         </button>
