@@ -167,8 +167,10 @@ export default function Form(props: { closeFormCB: () => void }) {
 
   return (
     <div className="divide-y-2 divide-dotted">
-      <div className="w-full mb-5">
-        <p className="font-semibold text-lg text-center">Available Forms</p>
+      <div className="flex flex-col justify-center w-full mb-5 items-center">
+        <p className="bg-gray-300 w-fit text-gray-800 font-bold py-2 px-4 rounded-lg font-semibold text-lg text-center">
+          Available Forms
+        </p>
         {fieldList.map((ele, indx) => (
           <FormsList
             key={indx}
