@@ -79,7 +79,10 @@ export default function Form(props: { closeFormCB: () => void }) {
   const submitFormData = (currentState: formData) => {
     let localForms = getLocalForms();
     let updatedForms: formData[] = [];
-    if (currentState.title in localForms) {
+    const elementExist = localForms.find(
+      (element) => element.title === currentState.title
+    );
+    if (elementExist) {
       updatedForms = localForms.map((form) =>
         form.title === currentState.title ? currentState : form
       );
@@ -144,6 +147,7 @@ export default function Form(props: { closeFormCB: () => void }) {
       ...state,
       formFields: state.formFields.filter((_, idd) => idd !== id),
     });
+    saveFormData(state);
   };
 
   const setFieldValue = (updateValue: string, id: number) => {
@@ -153,6 +157,7 @@ export default function Form(props: { closeFormCB: () => void }) {
       ...state,
       formFields: updatedState,
     });
+    saveFormData(state);
   };
 
   const clearForm = () => {
