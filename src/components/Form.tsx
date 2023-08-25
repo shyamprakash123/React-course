@@ -1,61 +1,60 @@
 import React, { useState, useEffect, useRef } from "react";
 import LabelledInput from "./LabelledInput";
-import FormsList from "./FormsList";
+import { Link, navigate } from "raviger";
+import Dropdown from "react-dropdown";
+import "react-dropdown/style.css";
+
 interface formData {
   title: string;
+  key: number;
   formFields: form[];
 }
 
 interface form {
   title: string;
+  id: number;
   type: string;
   value: string;
 }
 
 const initialFormFields: form[] = [
   {
-    title: "First Name",
+    title: "",
     type: "text",
     value: "",
-  },
-  {
-    title: "Last Name",
-    type: "text",
-    value: "",
-  },
-  {
-    title: "Email",
-    type: "email",
-    value: "",
-  },
-  {
-    title: "Date of Birth",
-    type: "date",
-    value: "",
-  },
-  {
-    title: "Phone Number",
-    type: "tel",
-    value: "",
+    id: 1,
   },
 ];
+
+const initialState: (id: number) => formData = (id: number) => {
+  const localForms = getLocalForms();
+  const newForm: formData = {
+    title: "Untitled Quiz",
+    key: localForms.length + 1,
+    formFields: initialFormFields,
+  };
+  if (localForms.length > 0) {
+    const updatedForm = localForms.find((form) => form.key === id);
+    const upd = updatedForm === undefined ? newForm : updatedForm;
+    return upd;
+  } else {
+    return newForm;
+  }
+};
+
+const submitFormData = (currentState: formData) => {
+  let localForms = getLocalForms();
+  let updatedForms = localForms.find((form) => form.key === currentState.key);
+  if (updatedForms) {
+    saveFormData(currentState);
+  } else {
+    saveLocalForms([...localForms, currentState]);
+  }
+};
 
 const getLocalForms: () => formData[] = () => {
   const savedFormsJson = localStorage.getItem("savedForms");
   return savedFormsJson ? JSON.parse(savedFormsJson) : [];
-};
-
-const initialState: () => formData = () => {
-  const localForms = getLocalForms();
-  if (localForms.length > 0) {
-    return localForms[0];
-  }
-  const newForm = {
-    title: "Untitled Form",
-    formFields: initialFormFields,
-  };
-  saveLocalForms([newForm]);
-  return newForm;
 };
 
 const saveLocalForms = (localForm: formData[]) => {
@@ -64,45 +63,21 @@ const saveLocalForms = (localForm: formData[]) => {
 
 const saveFormData = (currentState: formData) => {
   let localForms = getLocalForms();
-  const updatedForms = localForms.map((form) =>
-    form.title === currentState.title ? currentState : form
+  const updatedlocalForms = localForms.map((form) =>
+    form.key === currentState.key ? currentState : form
   );
-  saveLocalForms(updatedForms);
+  saveLocalForms(updatedlocalForms);
 };
 
-export default function Form(props: { closeFormCB: () => void }) {
-  const [state, setState] = useState(() => initialState());
+export default function Form(props: { id?: number }) {
+  const [state, setState] = useState(() => initialState(props.id!));
   const [newField, setNewField] = useState("");
-  const [fieldList, setFieldList] = useState(getLocalForms());
   const titleRef = useRef<HTMLInputElement>(null);
+  const [dataType, setDataType] = useState("text");
 
-  const submitFormData = (currentState: formData) => {
-    let localForms = getLocalForms();
-    let updatedForms: formData[] = [];
-    if (currentState.title in localForms) {
-      updatedForms = localForms.map((form) =>
-        form.title === currentState.title ? currentState : form
-      );
-    } else {
-      updatedForms = [...localForms, currentState];
-    }
-
-    // console.log(JSON.stringify(updatedForms));
-    saveLocalForms(updatedForms);
-    setFieldList(updatedForms);
-  };
-
-  const deleteFieldList = (title: string) => {
-    let localForms = getLocalForms();
-    const updatedForms = localForms.filter((form) => form.title !== title);
-    saveLocalForms(updatedForms);
-    setFieldList(updatedForms);
-  };
-
-  const editField = (title: string) => {
-    const updatedForm = [...fieldList].filter((form) => form.title === title);
-    setState(updatedForm[0]);
-  };
+  useEffect(() => {
+    state.key !== props.id && navigate(`/forms/${state.key}`);
+  }, [state.key, props.id]);
 
   useEffect(() => {
     console.log("Component Mounted");
@@ -131,8 +106,9 @@ export default function Form(props: { closeFormCB: () => void }) {
         ...state.formFields,
         {
           title: newField,
-          type: "text",
+          type: dataType,
           value: "",
+          id: state.formFields.length + 1,
         },
       ],
     });
@@ -148,7 +124,7 @@ export default function Form(props: { closeFormCB: () => void }) {
 
   const setFieldValue = (updateValue: string, id: number) => {
     const updatedState = [...state.formFields];
-    updatedState[id].value = updateValue;
+    updatedState[id].title = updateValue;
     setState({
       ...state,
       formFields: updatedState,
@@ -167,19 +143,6 @@ export default function Form(props: { closeFormCB: () => void }) {
 
   return (
     <div className="divide-y-2 divide-dotted">
-      <div className="flex flex-col justify-center w-full mb-5 items-center">
-        <p className="bg-gray-300 w-fit text-gray-800 font-bold py-2 px-4 rounded-lg text-lg text-center">
-          Available Forms
-        </p>
-        {fieldList.map((ele, indx) => (
-          <FormsList
-            key={indx}
-            title={ele.title}
-            deleteCB={deleteFieldList}
-            editCB={editField}
-          />
-        ))}
-      </div>
       <div>
         <input
           value={state.title}
@@ -202,7 +165,7 @@ export default function Form(props: { closeFormCB: () => void }) {
           />
         ))}
       </div>
-      <div className="flex pb-3">
+      <div className="flex pb-3 justify-center align-middle content-center">
         <input
           value={newField}
           onChange={(e) => {
@@ -211,6 +174,21 @@ export default function Form(props: { closeFormCB: () => void }) {
           className="border-2 flex-1 border-gray-200 focus:border-sky-500 focus:outline-none rounded-lg p-2 m-2"
           type="text"
         />
+        <select
+          name="type"
+          id="type"
+          onChange={(e) => {
+            setDataType(e.target.value);
+          }}
+          value={dataType}
+        >
+          <option value="text">Text</option>
+          <option value="email">Email</option>
+          <option value="password">Password</option>
+          <option value="number">Number</option>
+          <option value="date">Date</option>
+          <option value="tel">Tel</option>
+        </select>
         <button
           onClick={addField}
           className="p-2 m-2  bg-blue-500 rounded-xl hover:bg-blue-600 text-white font-bold text-base"
@@ -227,14 +205,12 @@ export default function Form(props: { closeFormCB: () => void }) {
         >
           Submit
         </button>
-        <button
-          onClick={() => {
-            props.closeFormCB();
-          }}
+        <Link
+          href={`/`}
           className="p-2 m-2  bg-blue-500 rounded-xl hover:bg-blue-600 text-white font-bold text-base"
         >
-          Close Home
-        </button>
+          Close Form
+        </Link>
         <button
           onClick={clearForm}
           className="p-2 m-2  bg-red-500 rounded-xl hover:bg-red-600 text-white font-bold text-base"
