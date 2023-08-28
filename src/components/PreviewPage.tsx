@@ -142,7 +142,8 @@ export default function PreviewPage(props: { id: number }) {
 
   useEffect(() => {
     saveQuestion(currentQuiz!);
-  }, [currentQuiz!]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentQuiz]);
 
   const render = () => {
     switch (currentQuiz?.kind) {

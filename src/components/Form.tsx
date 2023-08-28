@@ -413,6 +413,9 @@ export default function Form(props: { id?: number }) {
                   setFieldValueCB={setFieldValue}
                 />
               );
+
+            default:
+              return <div></div>;
           }
         })}
       </div>

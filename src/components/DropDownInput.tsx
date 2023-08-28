@@ -50,11 +50,3 @@ export default function DropDownInput(props: {
     </div>
   );
 }
-
-{
-  /* <select name={field.title} id={field.id.toString()}>
-  {field.options.map((op) => (
-    <option value={op}>{op}</option>
-  ))}
-</select>; */
-}

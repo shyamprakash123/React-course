@@ -1,7 +1,7 @@
 import { useState } from "react";
 import FormsList from "./FormsList";
 import { Link, useQueryParams } from "raviger";
-import { form, formData } from "../types/FormTypes";
+import { formData } from "../types/FormTypes";
 
 const getLocalForms: () => formData[] = () => {
   const savedFormsJson = localStorage.getItem("savedForms");
