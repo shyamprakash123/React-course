@@ -3,12 +3,17 @@ import React from "react";
 interface forms {
   title: string;
   idx: number;
+  noq: number;
   deleteFieldListCB: (id: number) => void;
 }
 export default function FormsList(props: forms) {
   return (
     <div className="w-full mt-4 rounded-md flex bg-emerald-500 hover:bg-emerald-600 gap-3 justify-center items-center">
-      <p className="text-white font-bold flex-1 ml-2">{props.title}</p>
+      <p className="text-white font-bold flex-1 ml-2">
+        {props.title}
+        <br />
+        <span>{`No of Questions ${props.noq}`}</span>
+      </p>
       <Link
         href={`/preview/${props.idx}`}
         className="p-2 mt-2 mb-2 mr-2 border-2 border-white bg-white rounded-xl hover:bg-purple-100 text-slate-800 font-bold text-base"

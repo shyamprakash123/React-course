@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import '~mdb-ui-kit/css/mdb.min.css';
 
 body {
   margin: 0;

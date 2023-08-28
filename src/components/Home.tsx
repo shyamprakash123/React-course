@@ -1,18 +1,7 @@
 import { useState } from "react";
 import FormsList from "./FormsList";
 import { Link, useQueryParams } from "raviger";
-
-interface formData {
-  title: string;
-  key: number;
-  formFields: form[];
-}
-
-interface form {
-  title: string;
-  type: string;
-  value: string;
-}
+import { form, formData } from "../types/FormTypes";
 
 const getLocalForms: () => formData[] = () => {
   const savedFormsJson = localStorage.getItem("savedForms");
@@ -57,7 +46,7 @@ export default function Home() {
             />
           </form>
         </div>
-        <p className="mt-8 mb-8 text-slate-600 bg-slate-100 font-bold py-2 px-4 rounded-lg text-lg text-center">
+        <p className="mt-8 mb-4 text-slate-600 bg-slate-100 font-bold py-2 px-4 rounded-lg text-lg text-center">
           {fieldList.length > 0 ? "Available Forms" : "No Forms Available"}
         </p>
         {fieldList
@@ -71,6 +60,7 @@ export default function Home() {
               key={indx}
               idx={ele.key}
               title={ele.title}
+              noq={ele.formFields.length}
               deleteFieldListCB={deleteFieldList}
             />
           ))}

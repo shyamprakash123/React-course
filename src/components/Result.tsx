@@ -6,12 +6,55 @@ interface formData {
   formFields: form[];
 }
 
-interface form {
+type textFieldTypes = "text" | "email" | "date" | "password" | "number" | "tel";
+
+type TextField = {
+  kind: "text";
   title: string;
   id: number;
-  type: string;
+  type: textFieldTypes;
   value: string;
-}
+};
+
+type DropDownField = {
+  kind: "dropdown";
+  title: string;
+  id: number;
+  options: string[];
+  value: string;
+};
+
+type TextAreaField = {
+  kind: "textarea";
+  title: string;
+  id: number;
+  cols: string;
+  rows: string;
+  value: string;
+};
+
+type MultiDropDownField = {
+  kind: "multidropdown";
+  title: string;
+  id: number;
+  options: string[];
+  value: string;
+};
+
+type RadioInputField = {
+  kind: "radio";
+  title: string;
+  id: number;
+  labels: string[];
+  value: string;
+};
+
+type form =
+  | TextField
+  | DropDownField
+  | RadioInputField
+  | MultiDropDownField
+  | TextAreaField;
 
 export default function Result(props: {
   form: formData;
