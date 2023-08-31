@@ -49,12 +49,21 @@ type RadioInputField = {
   value: string;
 };
 
+export type FileInputField = {
+  kind: "file";
+  title: string;
+  id: number;
+  type: string;
+  value: string;
+};
+
 type form =
   | TextField
   | DropDownField
   | RadioInputField
   | MultiDropDownField
-  | TextAreaField;
+  | TextAreaField
+  | FileInputField;
 
 export default function Result(props: {
   form: formData;

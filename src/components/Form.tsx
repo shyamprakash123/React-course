@@ -6,6 +6,7 @@ import DropDownInput from "./DropDownInput";
 import RadioInput from "./RadioInput";
 import MultiDropDownInput from "./MultiDropDownInput";
 import TextAreaInput from "./TextAreaInput";
+import FileInputField from "./FileInputField";
 
 const initialFormFields: form[] = [
   {
@@ -140,6 +141,20 @@ export default function Form(props: { id?: number }) {
           },
         ],
       });
+    } else if (dataType === "file") {
+      setState({
+        ...state,
+        formFields: [
+          ...state.formFields,
+          {
+            kind: "file",
+            title: newField,
+            type: "",
+            value: "",
+            id: state.formFields.length + 1,
+          },
+        ],
+      });
     } else if (dataType === "textarea") {
       setState({
         ...state,
@@ -215,6 +230,17 @@ export default function Form(props: { id?: number }) {
               }
             : form;
 
+        case "file":
+          return form.id === id
+            ? {
+                kind: "file",
+                title: updateValue,
+                id: form.id,
+                type: form.type,
+                value: form.value,
+              }
+            : form;
+
         case "textarea":
           return form.id === id
             ? {
@@ -255,6 +281,24 @@ export default function Form(props: { id?: number }) {
             title: form.title,
             id: form.id,
             options: options,
+            value: form.value,
+          }
+        : form
+    );
+    setState({
+      ...state,
+      formFields: updatedState,
+    });
+  };
+
+  const setFileOptionsValue = (id: number, type: string) => {
+    const updatedState: form[] = [...state.formFields].map((form) =>
+      form.id === id
+        ? {
+            kind: "file",
+            title: form.title,
+            id: form.id,
+            type: type,
             value: form.value,
           }
         : form
@@ -385,6 +429,20 @@ export default function Form(props: { id?: number }) {
                 />
               );
 
+            case "file":
+              return (
+                <FileInputField
+                  key={id}
+                  id={field.id}
+                  title={field.title}
+                  value={field.value}
+                  type={field.type}
+                  removeFieldCB={removeField}
+                  setFileOptionsValueCB={setFileOptionsValue}
+                  setFieldValueCB={setFieldValue}
+                />
+              );
+
             case "textarea":
               return (
                 <TextAreaInput
@@ -448,6 +506,7 @@ export default function Form(props: { id?: number }) {
           <option value="multidropdown">Multi Drop Down</option>
           <option value="textarea">Text Area</option>
           <option value="radio">Radio Field</option>
+          <option value="file">File Field</option>
         </select>
         <button
           onClick={addField}
