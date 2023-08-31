@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import LabelledInput from "./LabelledInput";
 import { Link, navigate } from "raviger";
-import Dropdown from "react-dropdown";
 import "react-dropdown/style.css";
 
 interface formData {
