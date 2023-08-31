@@ -71,21 +71,32 @@ export default function PreviewPage(props: { id: number }) {
   };
 
   let nextQuestion: () => void = () => {
-    if (quiz?.formFields.length! > currentQuiz?.id!) {
-      const getcurrentQuiz = quiz?.formFields.find(
-        (form) => form.id === currentQuiz?.id! + 1
-      );
-      setCurrentQuiz(getcurrentQuiz);
-      if (quiz?.formFields.length! - 1 === currentQuiz?.id!) {
-        setNextBtn("Submit");
-      } else {
-        setNextBtn("Next");
+    if (currentQuiz?.value.length! > 0) {
+      const element = document.getElementById(currentQuiz?.id.toString()!);
+      if (element) {
+        element.innerHTML = "";
       }
-      if (prevRef.current) {
-        prevRef.current.disabled = false;
+      if (quiz?.formFields.length! > currentQuiz?.id!) {
+        const getcurrentQuiz = quiz?.formFields.find(
+          (form) => form.id === currentQuiz?.id! + 1
+        );
+        setCurrentQuiz(getcurrentQuiz);
+        if (quiz?.formFields.length! - 1 === currentQuiz?.id!) {
+          setNextBtn("Submit");
+        } else {
+          setNextBtn("Next");
+        }
+        if (prevRef.current) {
+          prevRef.current.disabled = false;
+        }
+      } else {
+        setState("Submit");
       }
     } else {
-      setState("Submit");
+      const element = document.getElementById(currentQuiz?.id.toString()!);
+      if (element) {
+        element.innerHTML = "Answer is needed!";
+      }
     }
   };
 
@@ -160,6 +171,10 @@ export default function PreviewPage(props: { id: number }) {
                   Clear
                 </button>
               </div>
+              <span
+                className="text-red-800 font-semibold"
+                id={currentQuiz?.id.toString()}
+              ></span>
             </div>
             <div className="flex justify-between">
               <button
