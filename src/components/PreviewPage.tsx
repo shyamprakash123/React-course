@@ -76,12 +76,17 @@ export default function PreviewPage(props: { id: number }) {
       if (element) {
         element.innerHTML = "";
       }
-      if (quiz?.formFields.length! > currentQuiz?.id!) {
+      if (
+        quiz?.formFields[quiz?.formFields.length! - 1].id! > currentQuiz?.id!
+      ) {
         const getcurrentQuiz = quiz?.formFields.find(
           (form) => form.id === currentQuiz?.id! + 1
         );
         setCurrentQuiz(getcurrentQuiz);
-        if (quiz?.formFields.length! - 1 === currentQuiz?.id!) {
+        if (
+          quiz?.formFields[quiz?.formFields.length! - 1].id! ===
+          getcurrentQuiz?.id!
+        ) {
           setNextBtn("Submit");
         } else {
           setNextBtn("Next");
