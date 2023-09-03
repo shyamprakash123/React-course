@@ -68,6 +68,105 @@ const saveFormData = (currentState: formData) => {
   saveLocalForms(updatedlocalForms);
 };
 
+type kindTypes =
+  | "text"
+  | "textarea"
+  | "dropdown"
+  | "multidropdown"
+  | "radio"
+  | "file";
+
+type AddAction = {
+  type: "add_field";
+  label: string;
+  kind: kindTypes;
+};
+
+type RemoveAction = {
+  type: "remove_field";
+  id: number;
+};
+
+type FormActions = AddAction | RemoveAction;
+
+const getNewField: (dataType: string, newField: string, id: number) => form = (
+  dataType: string,
+  newField: string,
+  id: number
+) => {
+  if (dataType === "dropdown") {
+    return {
+      kind: "dropdown",
+      title: newField,
+      options: [],
+      value: "",
+      id: id,
+    };
+  } else if (dataType === "radio") {
+    return {
+      kind: "radio",
+      title: newField,
+      labels: [],
+      value: "",
+      id: id,
+    };
+  } else if (dataType === "multidropdown") {
+    return {
+      kind: "multidropdown",
+      title: newField,
+      options: [],
+      value: "",
+      id: id,
+    };
+  } else if (dataType === "file") {
+    return {
+      kind: "file",
+      title: newField,
+      type: "",
+      value: "",
+      id: id,
+    };
+  } else if (dataType === "textarea") {
+    return {
+      kind: "textarea",
+      title: newField,
+      cols: "",
+      rows: "",
+      value: "",
+      id: id,
+    };
+  } else {
+    return {
+      kind: "text",
+      title: newField,
+      type: dataType as textFieldTypes,
+      value: "",
+      id: id,
+    };
+  }
+};
+
+const reducer = (state: formData, action: FormActions) => {
+  switch (action.type) {
+    case "add_field":
+      const field = getNewField(
+        action.kind,
+        action.label,
+        state.formFields.length + 1
+      );
+      return {
+        ...state,
+        formFields: [...state.formFields, field],
+      };
+
+    case "remove_field":
+      return {
+        ...state,
+        formFields: state.formFields.filter((form) => form.id !== action.id),
+      };
+  }
+};
+
 export default function Form(props: { id?: number }) {
   const [state, setState] = useState(() => initialState(props.id!));
   const [newField, setNewField] = useState("");
@@ -98,102 +197,109 @@ export default function Form(props: { id?: number }) {
       clearTimeout(timeout);
     };
   }, [state]);
-  const addField = () => {
-    if (dataType === "dropdown") {
-      setState({
-        ...state,
-        formFields: [
-          ...state.formFields,
-          {
-            kind: "dropdown",
-            title: newField,
-            options: [],
-            value: "",
-            id: state.formFields.length + 1,
-          },
-        ],
-      });
-    } else if (dataType === "radio") {
-      setState({
-        ...state,
-        formFields: [
-          ...state.formFields,
-          {
-            kind: "radio",
-            title: newField,
-            labels: [],
-            value: "",
-            id: state.formFields.length + 1,
-          },
-        ],
-      });
-    } else if (dataType === "multidropdown") {
-      setState({
-        ...state,
-        formFields: [
-          ...state.formFields,
-          {
-            kind: "multidropdown",
-            title: newField,
-            options: [],
-            value: "",
-            id: state.formFields.length + 1,
-          },
-        ],
-      });
-    } else if (dataType === "file") {
-      setState({
-        ...state,
-        formFields: [
-          ...state.formFields,
-          {
-            kind: "file",
-            title: newField,
-            type: "",
-            value: "",
-            id: state.formFields.length + 1,
-          },
-        ],
-      });
-    } else if (dataType === "textarea") {
-      setState({
-        ...state,
-        formFields: [
-          ...state.formFields,
-          {
-            kind: "textarea",
-            title: newField,
-            cols: "",
-            rows: "",
-            value: "",
-            id: state.formFields.length + 1,
-          },
-        ],
-      });
-    } else {
-      setState({
-        ...state,
-        formFields: [
-          ...state.formFields,
-          {
-            kind: "text",
-            title: newField,
-            type: dataType as textFieldTypes,
-            value: "",
-            id: state.formFields.length + 1,
-          },
-        ],
-      });
-    }
-    setNewField("");
-  };
 
-  const removeField = (id: number) => {
-    setState({
-      ...state,
-      formFields: state.formFields.filter((form) => form.id !== id),
+  const dispatchAction = (action: FormActions) => {
+    setState((prevState) => {
+      return reducer(prevState, action);
     });
   };
+
+  // const addField = () => {
+  //   if (dataType === "dropdown") {
+  //     setState({
+  //       ...state,
+  //       formFields: [
+  //         ...state.formFields,
+  //         {
+  //           kind: "dropdown",
+  //           title: newField,
+  //           options: [],
+  //           value: "",
+  //           id: state.formFields.length + 1,
+  //         },
+  //       ],
+  //     });
+  //   } else if (dataType === "radio") {
+  //     setState({
+  //       ...state,
+  //       formFields: [
+  //         ...state.formFields,
+  //         {
+  //           kind: "radio",
+  //           title: newField,
+  //           labels: [],
+  //           value: "",
+  //           id: state.formFields.length + 1,
+  //         },
+  //       ],
+  //     });
+  //   } else if (dataType === "multidropdown") {
+  //     setState({
+  //       ...state,
+  //       formFields: [
+  //         ...state.formFields,
+  //         {
+  //           kind: "multidropdown",
+  //           title: newField,
+  //           options: [],
+  //           value: "",
+  //           id: state.formFields.length + 1,
+  //         },
+  //       ],
+  //     });
+  //   } else if (dataType === "file") {
+  //     setState({
+  //       ...state,
+  //       formFields: [
+  //         ...state.formFields,
+  //         {
+  //           kind: "file",
+  //           title: newField,
+  //           type: "",
+  //           value: "",
+  //           id: state.formFields.length + 1,
+  //         },
+  //       ],
+  //     });
+  //   } else if (dataType === "textarea") {
+  //     setState({
+  //       ...state,
+  //       formFields: [
+  //         ...state.formFields,
+  //         {
+  //           kind: "textarea",
+  //           title: newField,
+  //           cols: "",
+  //           rows: "",
+  //           value: "",
+  //           id: state.formFields.length + 1,
+  //         },
+  //       ],
+  //     });
+  //   } else {
+  //     setState({
+  //       ...state,
+  //       formFields: [
+  //         ...state.formFields,
+  //         {
+  //           kind: "text",
+  //           title: newField,
+  //           type: dataType as textFieldTypes,
+  //           value: "",
+  //           id: state.formFields.length + 1,
+  //         },
+  //       ],
+  //     });
+  //   }
+  //   setNewField("");
+  // };
+
+  // const removeField = (id: number) => {
+  //   setState({
+  //     ...state,
+  //     formFields: state.formFields.filter((form) => form.id !== id),
+  //   });
+  // };
 
   const setFieldValue = (updateValue: string, id: number) => {
     const updatedState: form[] = [...state.formFields].map((form) => {
@@ -396,7 +502,9 @@ export default function Form(props: { id?: number }) {
                   title={field.title}
                   type={field.type}
                   value={field.value}
-                  removeFieldCB={removeField}
+                  removeFieldCB={(id) =>
+                    dispatchAction({ type: "remove_field", id: id })
+                  }
                   setFieldValueCB={setFieldValue}
                 />
               );
@@ -409,7 +517,9 @@ export default function Form(props: { id?: number }) {
                   title={field.title}
                   options={field.options}
                   value={field.value}
-                  removeFieldCB={removeField}
+                  removeFieldCB={(id) =>
+                    dispatchAction({ type: "remove_field", id: id })
+                  }
                   setOptionsValueCB={setOptionsValue}
                   setFieldValueCB={setFieldValue}
                 />
@@ -423,7 +533,9 @@ export default function Form(props: { id?: number }) {
                   title={field.title}
                   options={field.options}
                   value={field.value}
-                  removeFieldCB={removeField}
+                  removeFieldCB={(id) =>
+                    dispatchAction({ type: "remove_field", id: id })
+                  }
                   setMOptionsValueCB={setMOptionsValue}
                   setFieldValueCB={setFieldValue}
                 />
@@ -437,7 +549,9 @@ export default function Form(props: { id?: number }) {
                   title={field.title}
                   value={field.value}
                   type={field.type}
-                  removeFieldCB={removeField}
+                  removeFieldCB={(id) =>
+                    dispatchAction({ type: "remove_field", id: id })
+                  }
                   setFileOptionsValueCB={setFileOptionsValue}
                   setFieldValueCB={setFieldValue}
                 />
@@ -452,7 +566,9 @@ export default function Form(props: { id?: number }) {
                   value={field.value}
                   cols={field.cols}
                   rows={field.rows}
-                  removeFieldCB={removeField}
+                  removeFieldCB={(id) =>
+                    dispatchAction({ type: "remove_field", id: id })
+                  }
                   setTOptionsValueCB={setTOptionsValue}
                   setFieldValueCB={setFieldValue}
                 />
@@ -466,7 +582,9 @@ export default function Form(props: { id?: number }) {
                   title={field.title}
                   labels={field.labels}
                   value={field.value}
-                  removeFieldCB={removeField}
+                  removeFieldCB={(id) =>
+                    dispatchAction({ type: "remove_field", id: id })
+                  }
                   setROptionsValueCB={setROptionsValue}
                   setFieldValueCB={setFieldValue}
                 />
@@ -509,7 +627,13 @@ export default function Form(props: { id?: number }) {
           <option value="file">File Field</option>
         </select>
         <button
-          onClick={addField}
+          onClick={(_) =>
+            dispatchAction({
+              type: "add_field",
+              label: newField,
+              kind: dataType as kindTypes,
+            })
+          }
           className="p-2 m-2  bg-blue-500 rounded-xl hover:bg-blue-600 text-white font-bold text-base"
         >
           Add Field
