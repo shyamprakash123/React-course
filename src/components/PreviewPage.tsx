@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useReducer, useRef, useState } from "react";
 import Result from "./Result";
 import Select from "react-select";
 import { Link, navigate } from "raviger";
 
 interface formData {
-  title?: string;
-  key?: number;
+  title: string;
+  key: number;
   formFields: form[];
 }
 
@@ -68,10 +68,10 @@ type form =
   | TextAreaField
   | FileInputField;
 
-const initialState: (id: number) => formData | undefined = (id: number) => {
+const initialState: (id: number) => formData = (id: number) => {
   const localForms = getLocalForms();
   const updatedForm = localForms.find((form) => form.key === id);
-  return updatedForm;
+  return updatedForm!;
 };
 
 const getLocalForms: () => formData[] = () => {
@@ -87,39 +87,105 @@ const checkQuiz: (form: formData | undefined) => boolean = (form) => {
   }
 };
 
+type saveQuiz = {
+  type: "savequiz";
+  current: form;
+};
+
+type PreviewQuizActions = saveQuiz;
+
+const quizReducer: (state: formData, action: PreviewQuizActions) => formData = (
+  state: formData,
+  action: PreviewQuizActions
+) => {
+  switch (action.type) {
+    case "savequiz":
+      return {
+        ...state,
+        formFields: [...state?.formFields!].map((field) =>
+          field.id === action.current?.id
+            ? {
+                ...field,
+                value: action.current?.value,
+              }
+            : field
+        ),
+      };
+  }
+};
+
+type ClearQuestion = {
+  type: "clearquestion";
+};
+
+type SetNextQuiz = {
+  type: "nextquiz";
+  quiz: formData;
+};
+
+type SetPrevQuiz = {
+  type: "prevquiz";
+  quiz: formData;
+  nextCB: () => void;
+};
+
+type UpdateQuizValue = {
+  type: "updateValue";
+  value: string;
+};
+
+type currentQuizAction =
+  | ClearQuestion
+  | SetNextQuiz
+  | SetPrevQuiz
+  | UpdateQuizValue;
+
+const currentquizreducer = (state: form, action: currentQuizAction) => {
+  switch (action.type) {
+    case "clearquestion":
+      return {
+        ...state,
+        value: "",
+      };
+
+    case "nextquiz":
+      const next_quiz = action.quiz.formFields.find(
+        (form) => form.id === state.id! + 1
+      );
+      return next_quiz!;
+
+    case "prevquiz":
+      const prev_quiz = action.quiz.formFields.find(
+        (form) => form.id === state.id! - 1
+      );
+      action.nextCB();
+      return prev_quiz!;
+
+    case "updateValue":
+      return {
+        ...state,
+        value: action.value,
+      };
+  }
+};
+
 export default function PreviewPage(props: { id: number }) {
-  const [quiz, setQuizState] = useState(() => initialState(props.id));
-  const [currentQuiz, setCurrentQuiz] = useState(quiz?.formFields[0]);
+  const [quiz, quizAction] = useReducer(quizReducer, null, () =>
+    initialState(props.id)
+  );
+  const [currentQuiz, currentQuizAction] = useReducer(
+    currentquizreducer,
+    quiz?.formFields[0]
+  );
+
+  //useState to handle Submit and Next Button
   const [nextBtn, setNextBtn] = useState(
     quiz?.formFields.length === 1 ? "Submit" : "Next"
   );
+
+  //useState to display result of quiz
   const [state, setState] = useState("Quiz");
   const prevRef = useRef<HTMLButtonElement>(null);
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  let saveQuestion: (current: form) => void = (current: form) => {
-    const up: formData = {
-      ...quiz,
-      formFields: [...quiz?.formFields!].map((field) =>
-        field.id === current?.id
-          ? {
-              ...field,
-              value: current?.value,
-            }
-          : field
-      ),
-    };
-    setQuizState(up);
-  };
-
-  let clearQuestion: () => void = () => {
-    const up = {
-      ...currentQuiz!,
-      value: "",
-    };
-
-    setCurrentQuiz(up);
-  };
 
   let setQuiz = () => {
     setState("Quiz");
@@ -131,14 +197,14 @@ export default function PreviewPage(props: { id: number }) {
       if (element) {
         element.innerHTML = "";
       }
-      saveQuestion(currentQuiz!);
+      quizAction({ type: "savequiz", current: currentQuiz! });
       if (
         quiz?.formFields[quiz?.formFields.length! - 1].id! > currentQuiz?.id!
       ) {
         const getcurrentQuiz = quiz?.formFields.find(
           (form) => form.id === currentQuiz?.id! + 1
         );
-        setCurrentQuiz(getcurrentQuiz);
+        currentQuizAction({ type: "nextquiz", quiz: quiz });
         if (
           quiz?.formFields[quiz?.formFields.length! - 1].id! ===
           getcurrentQuiz?.id!
@@ -158,19 +224,11 @@ export default function PreviewPage(props: { id: number }) {
     }
   };
 
-  let prevQuestion: () => void = () => {
-    const getcurrentQuiz = quiz?.formFields.find(
-      (form) => form.id === currentQuiz?.id! - 1
-    );
-    setCurrentQuiz(getcurrentQuiz);
-    setNextBtn("Next");
-  };
-
   useEffect(() => {
     if (checkQuiz(quiz)) {
-      saveQuestion(currentQuiz!);
+      quizAction({ type: "savequiz", current: currentQuiz! });
     }
-  }, [currentQuiz, quiz, saveQuestion]);
+  }, [currentQuiz, quiz]);
 
   const render = () => {
     switch (currentQuiz?.kind) {
@@ -183,8 +241,8 @@ export default function PreviewPage(props: { id: number }) {
             isMulti
             options={options}
             onChange={(e) => {
-              setCurrentQuiz({
-                ...currentQuiz!,
+              currentQuizAction({
+                type: "updateValue",
                 value: e.map((op) => op.value).toString(),
               });
             }}
@@ -197,8 +255,8 @@ export default function PreviewPage(props: { id: number }) {
             name={currentQuiz?.title}
             className="border-2 flex-1 select border-gray-200 focus:border-sky-500 focus:outline-none rounded-lg p-2 m-2"
             onChange={(e) => {
-              setCurrentQuiz({
-                ...currentQuiz!,
+              currentQuizAction({
+                type: "updateValue",
                 value: e.target.value,
               });
             }}
@@ -221,8 +279,8 @@ export default function PreviewPage(props: { id: number }) {
               className="border-2 flex-1 border-gray-200 focus:border-sky-500 focus:outline-none rounded-lg p-2 m-2"
               onChange={(e) => {
                 console.log(e.currentTarget.value);
-                setCurrentQuiz({
-                  ...currentQuiz!,
+                currentQuizAction({
+                  type: "updateValue",
                   value: e.currentTarget.value,
                 });
               }}
@@ -241,8 +299,8 @@ export default function PreviewPage(props: { id: number }) {
             cols={parseInt(currentQuiz?.cols)}
             rows={parseInt(currentQuiz?.rows)}
             onChange={(e) => {
-              setCurrentQuiz({
-                ...currentQuiz!,
+              currentQuizAction({
+                type: "updateValue",
                 value: e.target.value,
               });
             }}
@@ -255,8 +313,8 @@ export default function PreviewPage(props: { id: number }) {
             value={currentQuiz?.value!}
             placeholder="Enter Your Answer Here"
             onChange={(e) => {
-              setCurrentQuiz({
-                ...currentQuiz!,
+              currentQuizAction({
+                type: "updateValue",
                 value: e.target.value,
               });
             }}
@@ -270,8 +328,8 @@ export default function PreviewPage(props: { id: number }) {
             className="border-2 flex-1 border-gray-200 focus:border-sky-500 focus:outline-none rounded-lg p-2 m-2"
             type="file"
             onChange={(e) => {
-              setCurrentQuiz({
-                ...currentQuiz!,
+              currentQuizAction({
+                type: "updateValue",
                 value: e.target.value,
               });
             }}
@@ -313,7 +371,7 @@ export default function PreviewPage(props: { id: number }) {
               <div className="flex flex-col gap-2">
                 {render()}
                 <button
-                  onClick={() => clearQuestion()}
+                  onClick={() => currentQuizAction({ type: "clearquestion" })}
                   className="p-2 mt-2 mb-2 bg-blue-500 rounded-xl hover:bg-blue-600 text-white font-bold text-base"
                 >
                   Clear
@@ -328,7 +386,13 @@ export default function PreviewPage(props: { id: number }) {
               <button
                 ref={prevRef}
                 disabled={quiz.formFields[0].id === currentQuiz?.id}
-                onClick={(_) => prevQuestion()}
+                onClick={(_) =>
+                  currentQuizAction({
+                    type: "prevquiz",
+                    quiz: quiz,
+                    nextCB: () => setNextBtn("Next"),
+                  })
+                }
                 className="p-2 mt-2 mb-2 mr-2 border-2 disabled:text-slate-500  disabled:bg-slate-50 border-white bg-red-500 rounded-xl hover:bg-red-600 text-white font-bold text-base"
               >
                 Previous
