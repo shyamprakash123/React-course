@@ -54,10 +54,12 @@ const submitFormData = (currentState: formData) => {
     return false;
   });
   if (isOptionNotAvailable === undefined) {
-    const updatedlocalForms = localForms.map((form) =>
-      form.key === currentState.key ? currentState : form
-    );
-    saveLocalForms(updatedlocalForms);
+    let updatedForms = localForms.find((form) => form.key === currentState.key);
+    if (updatedForms) {
+      saveFormData(currentState);
+    } else {
+      saveLocalForms([...localForms, currentState]);
+    }
   } else {
     alert(`The type ${isOptionNotAvailable!.kind} option is needed!`);
   }
