@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import Result from "./Result";
 import { Link, navigate } from "raviger";
 
@@ -24,14 +24,6 @@ const initialState: (id: number) => formData | undefined = (id: number) => {
 const getLocalForms: () => formData[] = () => {
   const savedFormsJson = localStorage.getItem("savedForms");
   return savedFormsJson ? JSON.parse(savedFormsJson) : [];
-};
-
-const checkQuiz: (form: formData | undefined) => boolean = (form) => {
-  if (form === undefined) {
-    return false;
-  } else {
-    return true;
-  }
 };
 
 export default function PreviewPage(props: { id: number }) {
