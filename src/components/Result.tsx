@@ -78,7 +78,10 @@ export default function Result(props: {
       </div>
       <div className="flex flex-col w-full text-left content-start mb-8">
         {props.form.formFields.map((form, idx) => (
-          <p className="mt-2 text-slate-600 font-bold py-2 px-4 rounded-lg text-lg text-left">
+          <p
+            key={idx}
+            className="mt-2 text-slate-600 font-bold py-2 px-4 rounded-lg text-lg text-left"
+          >
             {`${idx + 1}. ${form.title} `} <br />
             {`Answer : ${form.value}`}
           </p>

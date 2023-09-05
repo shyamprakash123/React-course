@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useRef, useState } from "react";
+import React, { useReducer, useRef, useState } from "react";
 import Result from "./Result";
 import Select from "react-select";
 import { Link, navigate } from "raviger";
@@ -77,14 +77,6 @@ const initialState: (id: number) => formData = (id: number) => {
 const getLocalForms: () => formData[] = () => {
   const savedFormsJson = localStorage.getItem("savedForms");
   return savedFormsJson ? JSON.parse(savedFormsJson) : [];
-};
-
-const checkQuiz: (form: formData | undefined) => boolean = (form) => {
-  if (form === undefined) {
-    return false;
-  } else {
-    return true;
-  }
 };
 
 type saveQuiz = {
@@ -224,12 +216,6 @@ export default function PreviewPage(props: { id: number }) {
     }
   };
 
-  useEffect(() => {
-    if (checkQuiz(quiz)) {
-      quizAction({ type: "savequiz", current: currentQuiz! });
-    }
-  }, [currentQuiz, quiz]);
-
   const render = () => {
     switch (currentQuiz?.kind) {
       case "multidropdown":
@@ -262,14 +248,16 @@ export default function PreviewPage(props: { id: number }) {
             }}
           >
             {currentQuiz?.options.map((op, idx) => (
-              <option value={op}>{op}</option>
+              <option key={idx} value={op}>
+                {op}
+              </option>
             ))}
           </select>
         );
 
       case "radio":
         return currentQuiz?.labels.map((form, idx) => (
-          <div className="mt-2">
+          <div key={idx + 10} className="mt-2">
             <input
               type="radio"
               name={currentQuiz?.title}
@@ -278,14 +266,14 @@ export default function PreviewPage(props: { id: number }) {
               checked={form === currentQuiz?.value}
               className="border-2 flex-1 border-gray-200 focus:border-sky-500 focus:outline-none rounded-lg p-2 m-2"
               onChange={(e) => {
-                console.log(e.currentTarget.value);
+                // console.log(e.currentTarget.value);
                 currentQuizAction({
                   type: "updateValue",
                   value: e.currentTarget.value,
                 });
               }}
             />
-            <label htmlFor={idx.toString()}>{form}</label>
+            <label htmlFor={idx.toString() + "radio"}>{form}</label>
             <br />
           </div>
         ));
