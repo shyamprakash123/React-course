@@ -201,6 +201,7 @@ export default function PreviewPage(props: { id: number }) {
         return currentQuiz?.labels.map((form, idx) => (
           <div className="mt-2">
             <input
+              key={idx}
               type="radio"
               name={currentQuiz?.title}
               id={idx.toString() + "radio"}
