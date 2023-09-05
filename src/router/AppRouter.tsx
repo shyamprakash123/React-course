@@ -19,5 +19,12 @@ const routes = {
 
 export default function AppRouter() {
   let routeResult = useRoutes(routes);
-  return <AppContainer>{routeResult}</AppContainer>;
+  if (routeResult) {
+    return <AppContainer>{routeResult}</AppContainer>;
+  }
+  return (
+    <AppContainer>
+      <Home />
+    </AppContainer>
+  );
 }

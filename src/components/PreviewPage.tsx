@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import Result from "./Result";
 import Select from "react-select";
 import { Link, navigate } from "raviger";
@@ -77,14 +77,6 @@ const initialState: (id: number) => formData | undefined = (id: number) => {
 const getLocalForms: () => formData[] = () => {
   const savedFormsJson = localStorage.getItem("savedForms");
   return savedFormsJson ? JSON.parse(savedFormsJson) : [];
-};
-
-const checkQuiz: (form: formData | undefined) => boolean = (form) => {
-  if (form === undefined) {
-    return false;
-  } else {
-    return true;
-  }
 };
 
 export default function PreviewPage(props: { id: number }) {
@@ -166,12 +158,6 @@ export default function PreviewPage(props: { id: number }) {
     setNextBtn("Next");
   };
 
-  useEffect(() => {
-    if (checkQuiz(quiz)) {
-      saveQuestion(currentQuiz!);
-    }
-  }, [currentQuiz, quiz, saveQuestion]);
-
   const render = () => {
     switch (currentQuiz?.kind) {
       case "multidropdown":
@@ -204,7 +190,9 @@ export default function PreviewPage(props: { id: number }) {
             }}
           >
             {currentQuiz?.options.map((op, idx) => (
-              <option value={op}>{op}</option>
+              <option key={idx} value={op}>
+                {op}
+              </option>
             ))}
           </select>
         );
