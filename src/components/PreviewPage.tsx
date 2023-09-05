@@ -76,6 +76,7 @@ export default function PreviewPage(props: { id: number }) {
       if (element) {
         element.innerHTML = "";
       }
+      saveQuestion(currentQuiz!);
       if (
         quiz?.formFields[quiz?.formFields.length! - 1].id! > currentQuiz?.id!
       ) {
@@ -122,11 +123,11 @@ export default function PreviewPage(props: { id: number }) {
     }
   };
 
-  useEffect(() => {
-    if (checkQuiz(quiz)) {
-      saveQuestion(currentQuiz!);
-    }
-  }, [currentQuiz, quiz, saveQuestion]);
+  // useEffect(() => {
+  //   if (checkQuiz(quiz)) {
+  //     saveQuestion(currentQuiz!);
+  //   }
+  // }, [currentQuiz, quiz, saveQuestion]);
 
   if (quiz === undefined) {
     navigate("/QuizNotFound");
