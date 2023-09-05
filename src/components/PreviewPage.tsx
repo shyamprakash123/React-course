@@ -199,9 +199,8 @@ export default function PreviewPage(props: { id: number }) {
 
       case "radio":
         return currentQuiz?.labels.map((form, idx) => (
-          <div className="mt-2">
+          <div key={idx} className="mt-2">
             <input
-              key={idx}
               type="radio"
               name={currentQuiz?.title}
               id={idx.toString() + "radio"}
@@ -209,14 +208,13 @@ export default function PreviewPage(props: { id: number }) {
               checked={form === currentQuiz?.value}
               className="border-2 flex-1 border-gray-200 focus:border-sky-500 focus:outline-none rounded-lg p-2 m-2"
               onChange={(e) => {
-                console.log(e.currentTarget.value);
                 setCurrentQuiz({
                   ...currentQuiz!,
                   value: e.currentTarget.value,
                 });
               }}
             />
-            <label htmlFor={idx.toString()}>{form}</label>
+            <label htmlFor={idx.toString() + "radio"}>{form}</label>
             <br />
           </div>
         ));
