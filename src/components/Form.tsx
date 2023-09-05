@@ -44,10 +44,24 @@ const initialState: (id: number) => formData = (id: number) => {
 const submitFormData = (currentState: formData) => {
   let localForms = getLocalForms();
   let updatedForms = localForms.find((form) => form.key === currentState.key);
-  if (updatedForms) {
-    saveFormData(currentState);
+  let isOptionNotAvailable = currentState.formFields.find((form) => {
+    if (form.kind === "dropdown" && form.options.length === 0) {
+      return true;
+    } else if (form.kind === "multidropdown" && form.options.length === 0) {
+      return true;
+    } else if (form.kind === "radio" && form.labels.length === 0) {
+      return true;
+    }
+    return false;
+  });
+  if (isOptionNotAvailable === undefined) {
+    if (updatedForms) {
+      saveFormData(currentState);
+    } else {
+      saveLocalForms([...localForms, currentState]);
+    }
   } else {
-    saveLocalForms([...localForms, currentState]);
+    alert(`The type of ${isOptionNotAvailable!.kind} options cannot be empty!`);
   }
 };
 
@@ -62,10 +76,22 @@ const saveLocalForms = (localForm: formData[]) => {
 
 const saveFormData = (currentState: formData) => {
   let localForms = getLocalForms();
-  const updatedlocalForms = localForms.map((form) =>
-    form.key === currentState.key ? currentState : form
-  );
-  saveLocalForms(updatedlocalForms);
+  let isOptionNotAvailable = currentState.formFields.find((form) => {
+    if (form.kind === "dropdown" && form.options.length === 0) {
+      return true;
+    } else if (form.kind === "multidropdown" && form.options.length === 0) {
+      return true;
+    } else if (form.kind === "radio" && form.labels.length === 0) {
+      return true;
+    }
+    return false;
+  });
+  if (isOptionNotAvailable === undefined) {
+    const updatedlocalForms = localForms.map((form) =>
+      form.key === currentState.key ? currentState : form
+    );
+    saveLocalForms(updatedlocalForms);
+  }
 };
 
 export default function Form(props: { id?: number }) {
@@ -99,93 +125,97 @@ export default function Form(props: { id?: number }) {
     };
   }, [state]);
   const addField = () => {
-    if (dataType === "dropdown") {
-      setState({
-        ...state,
-        formFields: [
-          ...state.formFields,
-          {
-            kind: "dropdown",
-            title: newField,
-            options: [],
-            value: "",
-            id: state.formFields.length + 1,
-          },
-        ],
-      });
-    } else if (dataType === "radio") {
-      setState({
-        ...state,
-        formFields: [
-          ...state.formFields,
-          {
-            kind: "radio",
-            title: newField,
-            labels: [],
-            value: "",
-            id: state.formFields.length + 1,
-          },
-        ],
-      });
-    } else if (dataType === "multidropdown") {
-      setState({
-        ...state,
-        formFields: [
-          ...state.formFields,
-          {
-            kind: "multidropdown",
-            title: newField,
-            options: [],
-            value: "",
-            id: state.formFields.length + 1,
-          },
-        ],
-      });
-    } else if (dataType === "file") {
-      setState({
-        ...state,
-        formFields: [
-          ...state.formFields,
-          {
-            kind: "file",
-            title: newField,
-            type: "",
-            value: "",
-            id: state.formFields.length + 1,
-          },
-        ],
-      });
-    } else if (dataType === "textarea") {
-      setState({
-        ...state,
-        formFields: [
-          ...state.formFields,
-          {
-            kind: "textarea",
-            title: newField,
-            cols: "",
-            rows: "",
-            value: "",
-            id: state.formFields.length + 1,
-          },
-        ],
-      });
+    if (newField.length > 0) {
+      if (dataType === "dropdown") {
+        setState({
+          ...state,
+          formFields: [
+            ...state.formFields,
+            {
+              kind: "dropdown",
+              title: newField,
+              options: [],
+              value: "",
+              id: state.formFields.length + 1,
+            },
+          ],
+        });
+      } else if (dataType === "radio") {
+        setState({
+          ...state,
+          formFields: [
+            ...state.formFields,
+            {
+              kind: "radio",
+              title: newField,
+              labels: [],
+              value: "",
+              id: state.formFields.length + 1,
+            },
+          ],
+        });
+      } else if (dataType === "multidropdown") {
+        setState({
+          ...state,
+          formFields: [
+            ...state.formFields,
+            {
+              kind: "multidropdown",
+              title: newField,
+              options: [],
+              value: "",
+              id: state.formFields.length + 1,
+            },
+          ],
+        });
+      } else if (dataType === "file") {
+        setState({
+          ...state,
+          formFields: [
+            ...state.formFields,
+            {
+              kind: "file",
+              title: newField,
+              type: "",
+              value: "",
+              id: state.formFields.length + 1,
+            },
+          ],
+        });
+      } else if (dataType === "textarea") {
+        setState({
+          ...state,
+          formFields: [
+            ...state.formFields,
+            {
+              kind: "textarea",
+              title: newField,
+              cols: "",
+              rows: "",
+              value: "",
+              id: state.formFields.length + 1,
+            },
+          ],
+        });
+      } else {
+        setState({
+          ...state,
+          formFields: [
+            ...state.formFields,
+            {
+              kind: "text",
+              title: newField,
+              type: dataType as textFieldTypes,
+              value: "",
+              id: state.formFields.length + 1,
+            },
+          ],
+        });
+      }
+      setNewField("");
     } else {
-      setState({
-        ...state,
-        formFields: [
-          ...state.formFields,
-          {
-            kind: "text",
-            title: newField,
-            type: dataType as textFieldTypes,
-            value: "",
-            id: state.formFields.length + 1,
-          },
-        ],
-      });
+      alert("Question label is needed!");
     }
-    setNewField("");
   };
 
   const removeField = (id: number) => {
