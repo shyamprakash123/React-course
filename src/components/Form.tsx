@@ -43,11 +43,23 @@ const initialState: (id: number) => formData = (id: number) => {
 
 const submitFormData = (currentState: formData) => {
   let localForms = getLocalForms();
-  let updatedForms = localForms.find((form) => form.key === currentState.key);
-  if (updatedForms) {
-    saveFormData(currentState);
+  let isOptionNotAvailable = currentState.formFields.find((form) => {
+    if (form.kind === "dropdown" && form.options.length === 0) {
+      return true;
+    } else if (form.kind === "multidropdown" && form.options.length === 0) {
+      return true;
+    } else if (form.kind === "radio" && form.labels.length === 0) {
+      return true;
+    }
+    return false;
+  });
+  if (isOptionNotAvailable === undefined) {
+    const updatedlocalForms = localForms.map((form) =>
+      form.key === currentState.key ? currentState : form
+    );
+    saveLocalForms(updatedlocalForms);
   } else {
-    saveLocalForms([...localForms, currentState]);
+    alert(`The type ${isOptionNotAvailable!.kind} option is needed!`);
   }
 };
 
@@ -62,10 +74,22 @@ const saveLocalForms = (localForm: formData[]) => {
 
 const saveFormData = (currentState: formData) => {
   let localForms = getLocalForms();
-  const updatedlocalForms = localForms.map((form) =>
-    form.key === currentState.key ? currentState : form
-  );
-  saveLocalForms(updatedlocalForms);
+  let isOptionNotAvailable = currentState.formFields.find((form) => {
+    if (form.kind === "dropdown" && form.options.length === 0) {
+      return true;
+    } else if (form.kind === "multidropdown" && form.options.length === 0) {
+      return true;
+    } else if (form.kind === "radio" && form.labels.length === 0) {
+      return true;
+    }
+    return false;
+  });
+  if (isOptionNotAvailable === undefined) {
+    const updatedlocalForms = localForms.map((form) =>
+      form.key === currentState.key ? currentState : form
+    );
+    saveLocalForms(updatedlocalForms);
+  }
 };
 
 type kindTypes =
