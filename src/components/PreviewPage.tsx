@@ -1,4 +1,4 @@
-import React, { useReducer, useRef, useState } from "react";
+import React, { useReducer, useRef } from "react";
 import Result from "./Result";
 import Select from "react-select";
 import { Link, navigate } from "raviger";
@@ -118,7 +118,6 @@ type SetNextQuiz = {
 type SetPrevQuiz = {
   type: "prevquiz";
   quiz: formData;
-  nextCB: () => void;
 };
 
 type UpdateQuizValue = {
@@ -132,6 +131,16 @@ type currentQuizAction =
   | SetPrevQuiz
   | UpdateQuizValue;
 
+type setQuiz = {
+  type: "setquiz";
+};
+
+type setResult = {
+  type: "setresult";
+};
+
+type displayAction = setQuiz | setResult;
+
 const currentquizreducer = (state: form, action: currentQuizAction) => {
   switch (action.type) {
     case "clearquestion":
@@ -144,13 +153,17 @@ const currentquizreducer = (state: form, action: currentQuizAction) => {
       const next_quiz = action.quiz.formFields.find(
         (form) => form.id === state.id! + 1
       );
+
+      if (next_quiz?.kind === "dropdown") {
+        next_quiz.value = next_quiz.options[0];
+      }
+
       return next_quiz!;
 
     case "prevquiz":
       const prev_quiz = action.quiz.formFields.find(
         (form) => form.id === state.id! - 1
       );
-      action.nextCB();
       return prev_quiz!;
 
     case "updateValue":
@@ -158,6 +171,16 @@ const currentquizreducer = (state: form, action: currentQuizAction) => {
         ...state,
         value: action.value,
       };
+  }
+};
+
+const displayReducer = (state: string, action: displayAction) => {
+  switch (action.type) {
+    case "setquiz":
+      return "Quiz";
+
+    case "setresult":
+      return "Result";
   }
 };
 
@@ -170,18 +193,8 @@ export default function PreviewPage(props: { id: number }) {
     quiz?.formFields[0]
   );
 
-  //useState to handle Submit and Next Button
-  const [nextBtn, setNextBtn] = useState(
-    quiz?.formFields.length === 1 ? "Submit" : "Next"
-  );
-
-  //useState to display result of quiz
-  const [state, setState] = useState("Quiz");
+  const [display, displayAction] = useReducer(displayReducer, "Quiz");
   const prevRef = useRef<HTMLButtonElement>(null);
-
-  let setQuiz = () => {
-    setState("Quiz");
-  };
 
   let nextQuestion: () => void = () => {
     if (currentQuiz?.value.length! > 0) {
@@ -193,20 +206,9 @@ export default function PreviewPage(props: { id: number }) {
       if (
         quiz?.formFields[quiz?.formFields.length! - 1].id! > currentQuiz?.id!
       ) {
-        const getcurrentQuiz = quiz?.formFields.find(
-          (form) => form.id === currentQuiz?.id! + 1
-        );
         currentQuizAction({ type: "nextquiz", quiz: quiz });
-        if (
-          quiz?.formFields[quiz?.formFields.length! - 1].id! ===
-          getcurrentQuiz?.id!
-        ) {
-          setNextBtn("Submit");
-        } else {
-          setNextBtn("Next");
-        }
       } else {
-        setState("Submit");
+        displayAction({ type: "setresult" });
       }
     } else {
       const element = document.getElementById(currentQuiz?.id.toString()!);
@@ -248,7 +250,7 @@ export default function PreviewPage(props: { id: number }) {
             }}
           >
             {currentQuiz?.options.map((op, idx) => (
-              <option key={idx} value={op}>
+              <option key={idx + currentQuiz?.title} value={op}>
                 {op}
               </option>
             ))}
@@ -347,7 +349,7 @@ export default function PreviewPage(props: { id: number }) {
   } else {
     return (
       <div>
-        {state === "Quiz" ? (
+        {display === "Quiz" ? (
           <>
             <div className="flex justify-center">
               <p className="mt-8 mb-8 text-slate-600 bg-slate-100 font-bold py-2 px-4 rounded-lg text-lg text-center">
@@ -378,7 +380,6 @@ export default function PreviewPage(props: { id: number }) {
                   currentQuizAction({
                     type: "prevquiz",
                     quiz: quiz,
-                    nextCB: () => setNextBtn("Next"),
                   })
                 }
                 className="p-2 mt-2 mb-2 mr-2 border-2 disabled:text-slate-500  disabled:bg-slate-50 border-white bg-red-500 rounded-xl hover:bg-red-600 text-white font-bold text-base"
@@ -389,13 +390,19 @@ export default function PreviewPage(props: { id: number }) {
                 onClick={(_) => nextQuestion()}
                 className="pr-5 pl-5 mt-2 mb-2  border-2 border-white bg-green-500 rounded-xl hover:bg-green-600 text-white font-bold text-base"
               >
-                {nextBtn}
+                {quiz.formFields[quiz.formFields.length - 1].id ===
+                currentQuiz.id
+                  ? "Submit"
+                  : "Next"}
               </button>
             </div>{" "}
           </>
         ) : (
           <>
-            <Result form={quiz!} setQuizCB={setQuiz} />
+            <Result
+              form={quiz!}
+              setQuizCB={() => displayAction({ type: "setquiz" })}
+            />
           </>
         )}
       </div>
