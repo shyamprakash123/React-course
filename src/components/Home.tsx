@@ -1,15 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FormsList from "./FormsList";
-import { Link, useQueryParams } from "raviger";
-import { formData } from "../types/FormTypes";
+import { useQueryParams } from "raviger";
+import { Form } from "../types/FormTypes";
+import Modal from "./common/Model";
+import CreateForm from "./CreateForm";
 
-const getLocalForms: () => formData[] = () => {
+const getLocalForms: () => Form[] = () => {
   const savedFormsJson = localStorage.getItem("savedForms");
   return savedFormsJson ? JSON.parse(savedFormsJson) : [];
 };
 
-const saveLocalForms = (localForm: formData[]) => {
-  localStorage.setItem("savedForms", JSON.stringify(localForm));
+// const saveLocalForms = (localForm: formData[]) => {
+//   localStorage.setItem("savedForms", JSON.stringify(localForm));
+// };
+
+const fetchForms = async (setFieldListCB: (value: Form[]) => void) => {
+  const response = await fetch("https://tsapi.coronasafe.live/api/mock_test/");
+  const fields = await response.json();
+  setFieldListCB(fields);
 };
 
 export default function Home() {
@@ -17,12 +25,18 @@ export default function Home() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [{ search }, setQuery] = useQueryParams();
   const [searchString, setSearchString] = useState("");
-  const deleteFieldList = (id: number) => {
-    let localForms = getLocalForms();
-    const updatedForms = localForms.filter((form) => form.key !== id);
-    setFieldList(updatedForms);
-    saveLocalForms(updatedForms);
-  };
+  const [newForm, setNewForm] = useState(false);
+
+  // const deleteFieldList = (id: number) => {
+  //   let localForms = getLocalForms();
+  //   const updatedForms = localForms.filter((form) => form.key !== id);
+  //   setFieldList(updatedForms);
+  //   saveLocalForms(updatedForms);
+  // };
+
+  useEffect(() => {
+    fetchForms(setFieldList);
+  }, []);
 
   return (
     <div className="flex flex-col justify-center">
@@ -58,19 +72,29 @@ export default function Home() {
           .map((ele, indx) => (
             <FormsList
               key={indx}
-              idx={ele.key}
+              idx={indx}
               title={ele.title}
-              noq={ele.formFields.length}
-              deleteFieldListCB={deleteFieldList}
+              // noq={ele.formFields.length}
+              // deleteFieldListCB={deleteFieldList}
             />
           ))}
       </div>
-      <Link
-        href={`/forms`}
+      <button
         className="p-2 m-2 bg-blue-500 rounded-xl hover:bg-blue-600 text-white font-bold text-base text-center"
+        onClick={(_) => {
+          setNewForm(true);
+        }}
       >
         Create New Form
-      </Link>
+      </button>
+      <Modal
+        open={newForm}
+        closeCB={() => {
+          setNewForm(false);
+        }}
+      >
+        <CreateForm />
+      </Modal>
     </div>
   );
 }
