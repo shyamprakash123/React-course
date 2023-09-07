@@ -4,6 +4,8 @@ import { useQueryParams } from "raviger";
 import { Form } from "../types/FormTypes";
 import Modal from "./common/Model";
 import CreateForm from "./CreateForm";
+import { listForms } from "./utils/apiUtils";
+import { Pagination } from "../types/common";
 
 const getLocalForms: () => Form[] = () => {
   const savedFormsJson = localStorage.getItem("savedForms");
@@ -15,9 +17,12 @@ const getLocalForms: () => Form[] = () => {
 // };
 
 const fetchForms = async (setFieldListCB: (value: Form[]) => void) => {
-  const response = await fetch("https://tsapi.coronasafe.live/api/mock_test/");
-  const fields = await response.json();
-  setFieldListCB(fields);
+  try {
+    const data: Pagination<Form> = await listForms({ offset: 0, limit: 2 });
+    setFieldListCB(data.results);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export default function Home() {

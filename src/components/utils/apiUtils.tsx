@@ -1,4 +1,5 @@
 import { Form } from "../../types/FormTypes";
+import { PaginationParams } from "../../types/common";
 
 const API_BASE_URL = "https://tsapi.coronasafe.live/api/";
 
@@ -15,7 +16,7 @@ export const request = async (
     const requestParams = data
       ? `?${Object.keys(data)
           .map((key) => `${key}=${data[key]}`)
-          .join()}`
+          .join("&")}`
       : "";
     url = `${API_BASE_URL}${endpoint}${requestParams}`;
     payload = "";
@@ -23,14 +24,20 @@ export const request = async (
     url = `${API_BASE_URL}${endpoint}`;
     payload = data ? JSON.stringify(data) : "";
   }
-  const auth = "Basic " + window.btoa("ShyamPrakash22:Shyam@9097");
+  //   Basic Authentication
+  //   const auth = "Basic " + window.btoa("ShyamPrakash22:Shyam@9097");
+
+  //   Token Authentication
+  const token = localStorage.getItem("token");
+  const auth = token ? "Token " + token : "";
+
   const response = await fetch(url, {
     method: method,
     headers: {
       "Content-Type": "application/json",
       Authorization: auth,
     },
-    body: payload,
+    body: method !== "GET" ? payload : null,
   });
 
   if (response.ok) {
@@ -40,6 +47,18 @@ export const request = async (
     const errorJson = await response.json();
     throw Error(errorJson);
   }
+};
+
+export const login = (username: string, password: string) => {
+  return request("auth-token/", "POST", { username, password });
+};
+
+export const me = () => {
+  return request("users/me/", "GET", {});
+};
+
+export const listForms = (PaginationParams: PaginationParams) => {
+  return request("forms/", "GET", PaginationParams);
 };
 
 export const createForm = (form: Form) => {
