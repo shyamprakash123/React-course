@@ -4,11 +4,22 @@ export interface formData {
   formFields: form[];
 }
 
+export type kindTypes = "TEXT" | "DROPDOWN" | "RADIO";
+
 export type Form = {
   id?: number;
   title: string;
   description?: string;
-  is_public: boolean;
+  is_public?: boolean;
+};
+
+export type FormField = {
+  id?: number;
+  label: string;
+  kind: kindTypes;
+  options?: { options: string };
+  value?: string;
+  meta?: {};
 };
 
 export type Errors<T> = Partial<Record<keyof T, string>>;

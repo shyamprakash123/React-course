@@ -3,7 +3,6 @@ import React from "react";
 export default function LabelledInput(props: {
   id: number;
   title: string;
-  type: string;
   value: string;
   removeFieldCB: (id: number) => void;
   setFieldValueCB: (updateValue: string, id: number) => void;

@@ -3,11 +3,11 @@ import React from "react";
 export default function DropDownInput(props: {
   id: number;
   title: string;
-  options: string[];
+  options: {};
   value: string;
   setFieldValueCB: (updateValue: string, id: number) => void;
   removeFieldCB: (id: number) => void;
-  setOptionsValueCB: (id: number, options: string[]) => void;
+  setOptionsValueCB: (id: number, options: string) => void;
 }) {
   return (
     <div>
@@ -26,10 +26,10 @@ export default function DropDownInput(props: {
           <label className="font-semibold">{`Options for QNo ${props.id} : `}</label>
           <input
             className="border-2 flex-1 border-gray-200 focus:border-sky-500 focus:outline-none rounded-lg p-2 m-2"
-            value={props.options}
+            value={props.options.toString()}
             placeholder="Enter Your Options separated with commas (,)"
             onChange={(e) => {
-              props.setOptionsValueCB(props.id, e.target.value.split(","));
+              props.setOptionsValueCB(props.id, e.target.value);
             }}
             type="text"
           />

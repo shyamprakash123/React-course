@@ -4,8 +4,8 @@ import { useQueryParams } from "raviger";
 import { Form } from "../types/FormTypes";
 import Modal from "./common/Model";
 import CreateForm from "./CreateForm";
-import { listForms } from "./utils/apiUtils";
-import { Pagination } from "../types/common";
+import { deleteForm, listForms } from "./utils/apiUtils";
+// import { Pagination } from "../types/common";
 
 const getLocalForms: () => Form[] = () => {
   const savedFormsJson = localStorage.getItem("savedForms");
@@ -18,7 +18,7 @@ const getLocalForms: () => Form[] = () => {
 
 const fetchForms = async (setFieldListCB: (value: Form[]) => void) => {
   try {
-    const data: Pagination<Form> = await listForms({ offset: 0, limit: 2 });
+    const data = await listForms();
     setFieldListCB(data.results);
   } catch (error) {
     console.log(error);
@@ -32,12 +32,15 @@ export default function Home() {
   const [searchString, setSearchString] = useState("");
   const [newForm, setNewForm] = useState(false);
 
-  // const deleteFieldList = (id: number) => {
-  //   let localForms = getLocalForms();
-  //   const updatedForms = localForms.filter((form) => form.key !== id);
-  //   setFieldList(updatedForms);
-  //   saveLocalForms(updatedForms);
-  // };
+  const deleteFieldList = async (id: number) => {
+    const res = await deleteForm(id);
+    if (res) {
+      const forms = fieldList.filter((form) => form.id !== id);
+      setFieldList(forms);
+    } else {
+      console.log("Error while deleting a form");
+    }
+  };
 
   useEffect(() => {
     fetchForms(setFieldList);
@@ -77,10 +80,10 @@ export default function Home() {
           .map((ele, indx) => (
             <FormsList
               key={indx}
-              idx={indx}
+              idx={ele.id!}
               title={ele.title}
               // noq={ele.formFields.length}
-              // deleteFieldListCB={deleteFieldList}
+              deleteFieldListCB={deleteFieldList}
             />
           ))}
       </div>

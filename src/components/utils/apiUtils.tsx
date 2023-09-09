@@ -1,5 +1,5 @@
-import { Form } from "../../types/FormTypes";
-import { PaginationParams } from "../../types/common";
+import { Form, FormField } from "../../types/FormTypes";
+// import { PaginationParams } from "../../types/common";
 
 const API_BASE_URL = "https://tsapi.coronasafe.live/api/";
 
@@ -20,6 +20,9 @@ export const request = async (
       : "";
     url = `${API_BASE_URL}${endpoint}${requestParams}`;
     payload = "";
+  } else if (method === "DELETE") {
+    url = `${API_BASE_URL}${endpoint}`;
+    payload = "";
   } else {
     url = `${API_BASE_URL}${endpoint}`;
     payload = data ? JSON.stringify(data) : "";
@@ -39,9 +42,16 @@ export const request = async (
     },
     body: method !== "GET" ? payload : null,
   });
-
+  if (method === "DELETE") {
+    if (response.status === 204) {
+      return true;
+    } else {
+      return false;
+    }
+  }
   if (response.ok) {
     const json = await response.json();
+    console.log(json);
     return json;
   } else {
     const errorJson = await response.json();
@@ -57,8 +67,40 @@ export const me = () => {
   return request("users/me/", "GET", {});
 };
 
-export const listForms = (PaginationParams: PaginationParams) => {
-  return request("forms/", "GET", PaginationParams);
+// export const listForms = (PaginationParams: PaginationParams) => {
+//   return request("forms/", "GET", PaginationParams);
+// };
+
+export const listForms = () => {
+  return request("forms/", "GET");
+};
+
+export const listFormsID = (id: number) => {
+  return request(`forms/${id}/`, "GET");
+};
+
+export const listFormFields = (id: number) => {
+  return request(`forms/${id}/fields/`, "GET");
+};
+
+export const createFormField = (id: number, data: FormField) => {
+  return request(`forms/${id}/fields/`, "POST", data);
+};
+
+export const deleteFormField = (form_id: number, field_id: number) => {
+  return request(`forms/${form_id}/fields/${field_id}/`, "DELETE");
+};
+
+export const updateFormField = (form_id: number, data: FormField) => {
+  return request(`forms/${form_id}/fields/${data.id}/`, "PUT", data);
+};
+
+export const updateForm = (id: number, data: Form) => {
+  return request(`forms/${id}/`, "PUT", data);
+};
+
+export const deleteForm = (id: number) => {
+  return request(`forms/${id}/`, "DELETE");
 };
 
 export const createForm = (form: Form) => {
