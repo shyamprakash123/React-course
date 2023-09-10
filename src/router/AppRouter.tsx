@@ -6,6 +6,7 @@ import Form from "../components/Form";
 import PreviewPage from "../components/PreviewPage";
 import QuizNotFound from "../components/QuizNotFound";
 import Login from "../components/Login";
+import Unauthenticated from "../components/Unauthenticated";
 import { User } from "../types/userTypes";
 
 const routes = {
@@ -18,6 +19,7 @@ const routes = {
     <PreviewPage id={Number(formId)} />
   ),
   "/QuizNotFound": () => <QuizNotFound />,
+  "/Unauthenticated": () => <Unauthenticated />,
 };
 
 export default function AppRouter(props: { currentUser: User }) {
@@ -26,10 +28,11 @@ export default function AppRouter(props: { currentUser: User }) {
     return (
       <AppContainer currentUser={props.currentUser}>{routeResult}</AppContainer>
     );
+  } else {
+    return (
+      <AppContainer currentUser={props.currentUser}>
+        <Home />
+      </AppContainer>
+    );
   }
-  return (
-    <AppContainer currentUser={props.currentUser}>
-      <Home />
-    </AppContainer>
-  );
 }

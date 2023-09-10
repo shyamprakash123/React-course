@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useReducer } from "react";
 import LabelledInput from "./LabelledInput";
-import { Link } from "raviger";
+import { Link, navigate } from "raviger";
 import { FormField, kindTypes } from "../types/FormTypes";
 import DropDownInput from "./DropDownInput";
 import RadioInput from "./RadioInput";
@@ -9,6 +9,7 @@ import {
   deleteFormField,
   listFormFields,
   listFormsID,
+  me,
   updateForm,
   updateFormField,
 } from "./utils/apiUtils";
@@ -77,6 +78,13 @@ type UpdateFormTitleAction = {
 };
 
 type TitleActions = FetchTitleAction | UpdateFormTitleAction | UpdateFormAction;
+
+const getCurrentUser = async () => {
+  const currentUser = await me();
+  if (currentUser?.username.length === 0) {
+    navigate("/Unauthenticated");
+  }
+};
 
 const add_field = async (
   dispatchState: (format: FormActions) => void,
@@ -292,6 +300,7 @@ export default function Form(props: { id?: number }) {
   const [dataType, setDataType] = useState("TEXT");
 
   useEffect(() => {
+    getCurrentUser();
     console.log("Component Mounted");
     const oldTitle = document.title;
     document.title = "FormEditor";

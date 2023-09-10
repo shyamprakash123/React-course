@@ -1,15 +1,21 @@
 import { useEffect, useState } from "react";
 import FormsList from "./FormsList";
-import { useQueryParams } from "raviger";
+import { navigate, useQueryParams } from "raviger";
 import { Form } from "../types/FormTypes";
 import Modal from "./common/Model";
 import CreateForm from "./CreateForm";
-import { deleteForm, listForms } from "./utils/apiUtils";
+import { deleteForm, listForms, me } from "./utils/apiUtils";
+import { User } from "../types/userTypes";
 // import { Pagination } from "../types/common";
 
 const getLocalForms: () => Form[] = () => {
   const savedFormsJson = localStorage.getItem("savedForms");
   return savedFormsJson ? JSON.parse(savedFormsJson) : [];
+};
+
+const getCurrentUser = async (setCurrentUser: (currentUser: User) => void) => {
+  const currentUser = await me();
+  setCurrentUser(currentUser);
 };
 
 // const saveLocalForms = (localForm: formData[]) => {
@@ -25,10 +31,11 @@ const fetchForms = async (setFieldListCB: (value: Form[]) => void) => {
   }
 };
 
-export default function Home() {
+export default function Home(props: { currentUser?: User }) {
   const [fieldList, setFieldList] = useState(getLocalForms());
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [{ search }, setQuery] = useQueryParams();
+  const [currentUser, setCurrentUser] = useState<User>(null);
   const [searchString, setSearchString] = useState("");
   const [newForm, setNewForm] = useState(false);
 
@@ -44,6 +51,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchForms(setFieldList);
+    getCurrentUser(setCurrentUser);
   }, []);
 
   return (
@@ -90,7 +98,11 @@ export default function Home() {
       <button
         className="p-2 m-2 bg-blue-500 rounded-xl hover:bg-blue-600 text-white font-bold text-base text-center"
         onClick={(_) => {
-          setNewForm(true);
+          if (currentUser?.username.length > 0) {
+            setNewForm(true);
+          } else {
+            navigate("/Unauthenticated");
+          }
         }}
       >
         Create New Form

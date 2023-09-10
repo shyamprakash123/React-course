@@ -41,13 +41,6 @@ export default function Header(props: { currentUser: User }) {
             </button>
           )
         )}
-        <ActiveLink
-          href={"/forms"}
-          className="text-gray-800 p-2 m-2 uppercase"
-          exactActiveClass="text-blue-600"
-        >
-          Form
-        </ActiveLink>
       </div>
     </div>
   );

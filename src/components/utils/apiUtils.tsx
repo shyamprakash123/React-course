@@ -1,4 +1,4 @@
-import { Form, FormField } from "../../types/FormTypes";
+import { Form, FormField, Submission } from "../../types/FormTypes";
 // import { PaginationParams } from "../../types/common";
 
 const API_BASE_URL = "https://tsapi.coronasafe.live/api/";
@@ -51,7 +51,6 @@ export const request = async (
   }
   if (response.ok) {
     const json = await response.json();
-    console.log(json);
     return json;
   } else {
     const errorJson = await response.json();
@@ -87,8 +86,20 @@ export const createFormField = (id: number, data: FormField) => {
   return request(`forms/${id}/fields/`, "POST", data);
 };
 
+export const submitForm = (id: number, data: Submission) => {
+  return request(`forms/${id}/submission/`, "POST", data);
+};
+
+export const listsubmittedForms = (id: number) => {
+  return request(`forms/${id}/submission/`, "GET");
+};
+
 export const deleteFormField = (form_id: number, field_id: number) => {
   return request(`forms/${form_id}/fields/${field_id}/`, "DELETE");
+};
+
+export const listFormField = (form_id: number, field_id: number) => {
+  return request(`forms/${form_id}/fields/${field_id}/`, "GET");
 };
 
 export const updateFormField = (form_id: number, data: FormField) => {

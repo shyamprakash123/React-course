@@ -13,6 +13,18 @@ export type Form = {
   is_public?: boolean;
 };
 
+export type Answer = {
+  form_field: number;
+  value: string;
+};
+
+export type Submission = {
+  id?: number;
+  answers: Answer[];
+  form?: Form;
+  created_date?: string;
+};
+
 export type FormField = {
   id?: number;
   label: string;
