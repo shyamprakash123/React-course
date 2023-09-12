@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/no-access-key */
 import React from "react";
 import { FormField, Submission } from "../types/FormTypes";
 
@@ -27,6 +28,7 @@ export default function Result(props: {
 
       <div className="flex justify-between">
         <button
+          accessKey="b"
           onClick={(_) => {
             props.setQuizCB();
           }}

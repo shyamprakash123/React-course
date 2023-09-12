@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/no-access-key */
 import React, { useEffect, useReducer, useRef } from "react";
 import Result from "./Result";
 import { navigate } from "raviger";
@@ -388,7 +389,11 @@ export default function PreviewPage(props: { id: number }) {
             }}
           >
             {currentQuiz?.options!.options.split(",").map((op, idx) => (
-              <option key={idx + currentQuiz?.label} value={op}>
+              <option
+                tabIndex={idx === 0 ? 0 : undefined}
+                key={idx + currentQuiz?.label}
+                value={op}
+              >
                 {op}
               </option>
             ))}
@@ -399,6 +404,7 @@ export default function PreviewPage(props: { id: number }) {
         return currentQuiz?.options!.options.split(",").map((form, idx) => (
           <div key={idx + 10} className="mt-2">
             <input
+              tabIndex={idx === 0 ? 0 : undefined}
               type="radio"
               name={currentQuiz?.label}
               id={idx.toString() + "radio"}
@@ -419,6 +425,7 @@ export default function PreviewPage(props: { id: number }) {
       case "TEXT":
         return (
           <input
+            tabIndex={0}
             className="border-2 flex-1 border-gray-200 focus:border-sky-500 focus:outline-none rounded-lg p-2 m-2"
             value={currentQuiz?.value}
             placeholder="Enter Your Answer Here"
@@ -462,6 +469,7 @@ export default function PreviewPage(props: { id: number }) {
               <div className="flex flex-col gap-2">
                 {render()}
                 <button
+                  accessKey="c"
                   onClick={() => currentQuizAction({ type: "clearquestion" })}
                   className="p-2 mt-2 mb-2 bg-blue-500 rounded-xl hover:bg-blue-600 text-white font-bold text-base"
                 >
@@ -475,6 +483,7 @@ export default function PreviewPage(props: { id: number }) {
             </div>
             <div className="flex justify-between">
               <button
+                accessKey="p"
                 ref={prevRef}
                 disabled={fields[0].id === currentQuiz?.id}
                 onClick={(_) =>
@@ -489,6 +498,7 @@ export default function PreviewPage(props: { id: number }) {
                 Previous
               </button>
               <button
+                accessKey="n"
                 onClick={(_) => nextQuestion()}
                 className="pr-5 pl-5 mt-2 mb-2  border-2 border-white bg-green-500 rounded-xl hover:bg-green-600 text-white font-bold text-base"
               >
@@ -517,6 +527,7 @@ export default function PreviewPage(props: { id: number }) {
                       {ele.created_date!}
                     </p>
                     <button
+                      tabIndex={indx}
                       onClick={async () => {
                         quizAction({ type: "fetchquiz", current: ele });
                         displayAction({ type: "setresult" });
@@ -528,6 +539,7 @@ export default function PreviewPage(props: { id: number }) {
                   </div>
                 ))}
                 <button
+                  accessKey="q"
                   className="w-full p-2 m-2 mt-5 bg-blue-500 rounded-xl hover:bg-blue-600 text-white font-bold text-base text-center"
                   onClick={(_) => {
                     displayAction({ type: "setquiz" });

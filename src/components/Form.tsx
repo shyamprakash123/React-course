@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/no-access-key */
 import React, { useState, useEffect, useRef, useReducer } from "react";
 import LabelledInput from "./LabelledInput";
 import { Link, navigate } from "raviger";
@@ -553,6 +554,7 @@ export default function Form(props: { id?: number }) {
       )}
       <div className="flex justify-center items-center">
         <button
+          accessKey="s"
           onClick={(_) => {
             saveForm();
           }}
@@ -561,6 +563,7 @@ export default function Form(props: { id?: number }) {
           Submit
         </button>
         <Link
+          accessKey="c"
           href={`/`}
           className="p-2 m-2  bg-blue-500 rounded-xl hover:bg-blue-600 text-white font-bold text-base"
         >

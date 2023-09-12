@@ -74,6 +74,15 @@ export const listForms = () => {
   return request("forms/", "GET");
 };
 
+export const listlength = async () => {
+  const length = await request("forms/", "GET");
+  return length.results.length;
+};
+
+export const listFormsQuery = (data: { limit: number; offset: number }) => {
+  return request("forms/", "GET", data);
+};
+
 export const listFormsID = (id: number) => {
   return request(`forms/${id}/`, "GET");
 };

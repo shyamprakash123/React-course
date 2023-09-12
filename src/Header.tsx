@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/no-access-key */
 import { ActiveLink } from "raviger";
 import logo from "./logo.svg";
 import { User } from "./types/userTypes";
@@ -8,8 +9,8 @@ export default function Header(props: { currentUser: User }) {
       <img src={logo} className="animate-spin h-16 w-16" alt="logo" />
       <div className="flex justify-center items-center font-semibold">
         {[
-          { page: "Home", url: "/" },
-          { page: "About", url: "/about" },
+          { page: "Home", url: "/", key: "h" },
+          { page: "About", url: "/about", key: "a" },
           ...(props.currentUser?.username.length > 0
             ? [
                 {
@@ -20,10 +21,11 @@ export default function Header(props: { currentUser: User }) {
                   },
                 },
               ]
-            : [{ page: "Login", url: "/login" }]),
+            : [{ page: "Login", url: "/login", key: "l" }]),
         ].map((link) =>
           link.url ? (
             <ActiveLink
+              accessKey={link.key}
               key={link.url}
               href={link.url}
               className="text-gray-800 p-2 m-2 uppercase"
@@ -33,6 +35,7 @@ export default function Header(props: { currentUser: User }) {
             </ActiveLink>
           ) : (
             <button
+              accessKey={link.key}
               key={link.page}
               className="text-gray-800 p-2 m-2 uppercase"
               onClick={link.onClick}

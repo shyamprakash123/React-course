@@ -1,5 +1,6 @@
 import { Link } from "raviger";
 import React from "react";
+import ShareForm from "./ShareForm";
 interface forms {
   title: string;
   idx: number;
@@ -15,18 +16,21 @@ export default function FormsList(props: forms) {
         {/* <span>{`No of Questions ${props.noq}`}</span> */}
       </p>
       <Link
+        tabIndex={props.idx}
         href={`/preview/${props.idx}`}
         className="p-2 mt-2 mb-2 mr-2 border-2 border-white bg-white rounded-xl hover:bg-purple-100 text-slate-800 font-bold text-base"
       >
         Preview
       </Link>
       <Link
+        tabIndex={props.idx + 1}
         href={`/forms/${props.idx}`}
-        className="p-2 mt-2 mb-2 mr-2 border-2 border-white bg-purple-500 rounded-xl hover:bg-purple-600 text-white font-bold text-base"
+        className={`p-2 mt-2 mb-2 mr-2 border-2 border-white bg-purple-500 rounded-xl hover:bg-purple-600 text-white font-bold text-base`}
       >
         Open Form
       </Link>
       <button
+        tabIndex={props.idx + 2}
         onClick={() => {
           props.deleteFieldListCB(props.idx);
         }}
@@ -34,6 +38,7 @@ export default function FormsList(props: forms) {
       >
         Delete Form
       </button>
+      <ShareForm formID={props.idx} />
     </div>
   );
 }
