@@ -125,7 +125,7 @@ const currentquizreducer: (
         value:
           savedq?.value.length! > 0
             ? savedq?.value!
-            : next_quiz?.kind === "DROPDOWN" || next_quiz?.kind === "RADIO"
+            : next_quiz?.kind! === "DROPDOWN" || next_quiz?.kind! === "RADIO"
             ? next_quiz?.options!.options.split(",")[0]
             : "",
       };
@@ -150,7 +150,7 @@ const currentquizreducer: (
       return {
         ...action.quiz,
         value:
-          action.quiz.kind === "DROPDOWN" || action.quiz.kind === "RADIO"
+          action.quiz?.kind! === "DROPDOWN" || action.quiz?.kind! === "RADIO"
             ? action.quiz.options!.options.split(",")[0]
             : "",
       };
@@ -201,7 +201,7 @@ const fetchFieldsFunction = async (
       return {
         form_field: field.id,
         value:
-          field.kind === "DROPDOWN" || field.kind === "RADIO"
+          field?.kind! === "DROPDOWN" || field?.kind! === "RADIO"
             ? field?.options!.options.split(",")[0]
             : "",
       };
@@ -357,6 +357,7 @@ export default function PreviewPage(props: { id: number }) {
             answers: savedQuiz,
           });
           if (submitResponse) {
+            setQuizs({ data: [...quizs, submitResponse] });
             quizAction({ type: "fetchquiz", current: submitResponse });
             displayAction({ type: "setresult" });
           }
@@ -373,7 +374,7 @@ export default function PreviewPage(props: { id: number }) {
   };
 
   const render = () => {
-    switch (currentQuiz?.kind) {
+    switch (currentQuiz?.kind!) {
       case "DROPDOWN":
         return (
           <select
@@ -401,13 +402,20 @@ export default function PreviewPage(props: { id: number }) {
             <input
               type="radio"
               name={currentQuiz?.label}
+              checked={currentQuiz.value === form}
               id={idx.toString() + "radio"}
               value={form}
               className="border-2 flex-1 border-gray-200 focus:border-sky-500 focus:outline-none rounded-lg p-2 m-2"
               onChange={(e) => {
+                console.log(e.target.value);
                 currentQuizAction({
                   type: "updateValue",
                   value: e.target.value,
+                });
+                dupQuizAction({
+                  type: "setDupQuiz",
+                  value: e.target.value,
+                  id: currentQuiz.id!,
                 });
               }}
             />
@@ -530,7 +538,11 @@ export default function PreviewPage(props: { id: number }) {
                 <button
                   className="w-full p-2 m-2 mt-5 bg-blue-500 rounded-xl hover:bg-blue-600 text-white font-bold text-base text-center"
                   onClick={(_) => {
-                    displayAction({ type: "setquiz" });
+                    if (fields.length > 0) {
+                      displayAction({ type: "setquiz" });
+                    } else {
+                      alert("No Questions are available!");
+                    }
                   }}
                 >
                   Attempt New Quiz

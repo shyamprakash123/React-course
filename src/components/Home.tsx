@@ -4,9 +4,8 @@ import { navigate, useQueryParams } from "raviger";
 import { Form } from "../types/FormTypes";
 import Modal from "./common/Model";
 import CreateForm from "./CreateForm";
-import { deleteForm, listForms, me } from "./utils/apiUtils";
+import { deleteForm, listFormsP, me } from "./utils/apiUtils";
 import { User } from "../types/userTypes";
-// import { Pagination } from "../types/common";
 
 const getLocalForms: () => Form[] = () => {
   const savedFormsJson = localStorage.getItem("savedForms");
@@ -18,13 +17,12 @@ const getCurrentUser = async (setCurrentUser: (currentUser: User) => void) => {
   setCurrentUser(currentUser);
 };
 
-// const saveLocalForms = (localForm: formData[]) => {
-//   localStorage.setItem("savedForms", JSON.stringify(localForm));
-// };
-
-const fetchForms = async (setFieldListCB: (value: Form[]) => void) => {
+const fetchForms = async (
+  setFieldListCB: (value: Form[]) => void,
+  offset: number
+) => {
   try {
-    const data = await listForms();
+    const data = await listFormsP({ offset: offset, limit: 3 });
     setFieldListCB(data.results);
   } catch (error) {
     console.log(error);
@@ -38,6 +36,7 @@ export default function Home(props: { currentUser?: User }) {
   const [currentUser, setCurrentUser] = useState<User>(null);
   const [searchString, setSearchString] = useState("");
   const [newForm, setNewForm] = useState(false);
+  const [offset, setOffSet] = useState(0);
 
   const deleteFieldList = async (id: number) => {
     const res = await deleteForm(id);
@@ -50,9 +49,17 @@ export default function Home(props: { currentUser?: User }) {
   };
 
   useEffect(() => {
-    fetchForms(setFieldList);
+    fetchForms(setFieldList, offset);
     getCurrentUser(setCurrentUser);
-  }, []);
+  }, [offset]);
+
+  const next = () => {
+    setOffSet((prevSet) => prevSet + 3);
+  };
+
+  const prev = () => {
+    setOffSet((prevSet) => prevSet - 3);
+  };
 
   return (
     <div className="flex flex-col justify-center">
@@ -95,6 +102,22 @@ export default function Home(props: { currentUser?: User }) {
             />
           ))}
       </div>
+      <div className="flex justify-between">
+        <button
+          onClick={prev}
+          disabled={offset === 0}
+          className="p-2 mt-2 mb-2 mr-2 border-2 disabled:text-slate-500  disabled:bg-slate-50 border-white bg-red-500 rounded-xl hover:bg-red-600 text-white font-bold text-base"
+        >
+          Previous
+        </button>
+        <button
+          onClick={next}
+          disabled={fieldList.length < 3}
+          className="pr-5 pl-5 mt-2 mb-2  border-2 border-white bg-green-500 rounded-xl  disabled:text-slate-500  disabled:bg-green-100 hover:bg-green-600 text-white font-bold text-base"
+        >
+          Next
+        </button>
+      </div>{" "}
       <button
         className="p-2 m-2 bg-blue-500 rounded-xl hover:bg-blue-600 text-white font-bold text-base text-center"
         onClick={(_) => {

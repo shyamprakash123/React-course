@@ -1,5 +1,5 @@
 import { Form, FormField, Submission } from "../../types/FormTypes";
-// import { PaginationParams } from "../../types/common";
+import { PaginationParams } from "../../types/common";
 
 const API_BASE_URL = "https://tsapi.coronasafe.live/api/";
 
@@ -66,9 +66,9 @@ export const me = () => {
   return request("users/me/", "GET", {});
 };
 
-// export const listForms = (PaginationParams: PaginationParams) => {
-//   return request("forms/", "GET", PaginationParams);
-// };
+export const listFormsP = (PaginationParams: PaginationParams) => {
+  return request("forms/", "GET", PaginationParams);
+};
 
 export const listForms = () => {
   return request("forms/", "GET");
