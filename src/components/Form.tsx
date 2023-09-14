@@ -518,6 +518,8 @@ export default function Form(props: { id?: number }) {
           <option value="RADIO">Radio Field</option>
         </select>
         <button
+          accessKey="f"
+          title="ALT + F"
           onClick={(_) => {
             add_field(
               dispatchState,
@@ -555,6 +557,7 @@ export default function Form(props: { id?: number }) {
       <div className="flex justify-center items-center">
         <button
           accessKey="s"
+          title="ALT + S"
           onClick={(_) => {
             saveForm();
           }}
@@ -564,6 +567,7 @@ export default function Form(props: { id?: number }) {
         </button>
         <Link
           accessKey="c"
+          title="ALT + C"
           href={`/`}
           className="p-2 m-2  bg-blue-500 rounded-xl hover:bg-blue-600 text-white font-bold text-base"
         >

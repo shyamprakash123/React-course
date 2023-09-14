@@ -26,6 +26,7 @@ export default function Header(props: { currentUser: User }) {
           link.url ? (
             <ActiveLink
               accessKey={link.key}
+              title={`ALT + ${link.key.toUpperCase()}`}
               key={link.url}
               href={link.url}
               className="text-gray-800 p-2 m-2 uppercase"
@@ -35,7 +36,8 @@ export default function Header(props: { currentUser: User }) {
             </ActiveLink>
           ) : (
             <button
-              accessKey={link.key}
+              accessKey="l"
+              title={`ALT + L`}
               key={link.page}
               className="text-gray-800 p-2 m-2 uppercase"
               onClick={link.onClick}

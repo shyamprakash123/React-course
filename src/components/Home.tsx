@@ -9,8 +9,6 @@ import { deleteForm, listFormsQuery, listlength, me } from "./utils/apiUtils";
 import { User } from "../types/userTypes";
 import InfiniteScroll from "react-infinite-scroll-component";
 
-// import { Pagination } from "../types/common";
-
 const getLocalForms: () => Form[] = () => {
   const savedFormsJson = localStorage.getItem("savedForms");
   return savedFormsJson ? JSON.parse(savedFormsJson) : [];
@@ -20,10 +18,6 @@ const getCurrentUser = async (setCurrentUser: (currentUser: User) => void) => {
   const currentUser = await me();
   setCurrentUser(currentUser);
 };
-
-// const saveLocalForms = (localForm: formData[]) => {
-//   localStorage.setItem("savedForms", JSON.stringify(localForm));
-// };
 
 const fetchForms = async (
   setFieldListCB: (value: Form[]) => void,
@@ -74,9 +68,9 @@ export default function Home(props: { currentUser?: User }) {
   };
 
   return (
-    <div className="flex h-3/6 overflow-auto flex-col justify-center">
+    <div className="flex flex-col justify-center">
       <div className="flex flex-col justify-center w-full mb-5 items-center">
-        <div className="flex items-center">
+        <div className="flex items-center" title="ALT + S">
           <label className="font-semibold text-gray-800">Search</label>
           <form
             onSubmit={(e) => {
@@ -96,34 +90,47 @@ export default function Home(props: { currentUser?: User }) {
             />
           </form>
         </div>
-        <p className="mt-8 mb-4 text-slate-600 bg-slate-100 font-bold py-2 px-4 rounded-lg text-lg text-center">
+        <p className="mt-4 mb-4 text-slate-600 bg-slate-100 font-bold py-2 px-4 rounded-lg text-lg text-center">
           {fieldList.length > 0 ? "Available Forms" : "No Forms Available"}
         </p>
-        <InfiniteScroll
-          dataLength={fieldList.length}
-          next={fetchMoreData}
-          hasMore={listLength > fieldList.length}
-          loader={<h4>Loading...</h4>}
-        >
-          {fieldList
-            .filter((form) =>
-              form.title
-                .toLocaleLowerCase()
-                .includes(searchString?.toLocaleLowerCase() || "")
-            )
-            .map((ele, indx) => (
-              <FormsList
-                key={indx}
-                idx={ele.id!}
-                title={ele.title}
-                // noq={ele.formFields.length}
-                deleteFieldListCB={deleteFieldList}
-              />
-            ))}
-        </InfiniteScroll>
+        <div>
+          <InfiniteScroll
+            dataLength={fieldList.length}
+            next={fetchMoreData}
+            hasMore={listLength > fieldList.length}
+            loader={<h4>Loading...</h4>}
+            height={250}
+            endMessage={
+              fieldList.length > 0 ? (
+                <p style={{ textAlign: "center" }}>
+                  <b>Yay! You have seen it all</b>
+                </p>
+              ) : (
+                ""
+              )
+            }
+          >
+            {fieldList
+              .filter((form) =>
+                form.title
+                  .toLocaleLowerCase()
+                  .includes(searchString?.toLocaleLowerCase() || "")
+              )
+              .map((ele, indx) => (
+                <FormsList
+                  key={indx}
+                  idx={ele.id!}
+                  title={ele.title}
+                  // noq={ele.formFields.length}
+                  deleteFieldListCB={deleteFieldList}
+                />
+              ))}
+          </InfiniteScroll>
+        </div>
       </div>
       <button
         accessKey="c"
+        title="ALT + C"
         className="p-2 m-2 bg-blue-500 rounded-xl hover:bg-blue-600 text-white font-bold text-base text-center"
         onClick={(_) => {
           if (currentUser?.username.length > 0) {

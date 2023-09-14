@@ -29,6 +29,7 @@ export default function Result(props: {
       <div className="flex justify-between">
         <button
           accessKey="b"
+          title="ALT + B"
           onClick={(_) => {
             props.setQuizCB();
           }}
