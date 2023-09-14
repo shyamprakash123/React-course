@@ -16,15 +16,41 @@ const routes = {
       <Home />
     </React.Suspense>
   ),
-  "/about": () => <About />,
-  "/login": () => <Login />,
-  "/forms/:id": ({ id }: { id: string }) => <Form id={Number(id)} />,
-  "/forms": () => <Form />,
-  "/preview/:formId": ({ formId }: { formId: string }) => (
-    <PreviewPage id={Number(formId)} />
+  "/about": () => (
+    <React.Suspense fallback={<h1>Loading...</h1>}>
+      <About />
+    </React.Suspense>
   ),
-  "/QuizNotFound": () => <QuizNotFound />,
-  "/Unauthenticated": () => <Unauthenticated />,
+  "/login": () => (
+    <React.Suspense fallback={<h1>Loading...</h1>}>
+      <Login />
+    </React.Suspense>
+  ),
+  "/forms/:id": ({ id }: { id: string }) => (
+    <React.Suspense fallback={<h1>Loading...</h1>}>
+      <Form id={Number(id)} />
+    </React.Suspense>
+  ),
+  "/forms": () => (
+    <React.Suspense fallback={<h1>Loading...</h1>}>
+      <Form />
+    </React.Suspense>
+  ),
+  "/preview/:formId": ({ formId }: { formId: string }) => (
+    <React.Suspense fallback={<h1>Loading...</h1>}>
+      <PreviewPage id={Number(formId)} />
+    </React.Suspense>
+  ),
+  "/QuizNotFound": () => (
+    <React.Suspense fallback={<h1>Loading...</h1>}>
+      <QuizNotFound />
+    </React.Suspense>
+  ),
+  "/Unauthenticated": () => (
+    <React.Suspense fallback={<h1>Loading...</h1>}>
+      <Unauthenticated />
+    </React.Suspense>
+  ),
 };
 
 export default function AppRouter(props: { currentUser: User }) {
@@ -36,7 +62,9 @@ export default function AppRouter(props: { currentUser: User }) {
   } else {
     return (
       <AppContainer currentUser={props.currentUser}>
-        <Home />
+        <React.Suspense fallback={<h1>Loading...</h1>}>
+          <Home />
+        </React.Suspense>
       </AppContainer>
     );
   }
