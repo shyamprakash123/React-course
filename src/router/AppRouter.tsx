@@ -1,14 +1,16 @@
 import { useRoutes } from "raviger";
-import About from "../components/About";
 import AppContainer from "../AppContainer";
-import Form from "../components/Form";
-import PreviewPage from "../components/PreviewPage";
-import QuizNotFound from "../components/QuizNotFound";
-import Login from "../components/Login";
-import Unauthenticated from "../components/Unauthenticated";
 import { User } from "../types/userTypes";
 import React from "react";
 const Home = React.lazy(() => import("../components/Home"));
+const Login = React.lazy(() => import("../components/Login"));
+const QuizNotFound = React.lazy(() => import("../components/QuizNotFound"));
+const Unauthenticated = React.lazy(
+  () => import("../components/Unauthenticated")
+);
+const PreviewPage = React.lazy(() => import("../components/PreviewPage"));
+const Form = React.lazy(() => import("../components/Form"));
+const About = React.lazy(() => import("../components/About"));
 
 const routes = {
   "/": () => (
